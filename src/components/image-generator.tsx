@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 
 import { generateBoldMinimalistImage } from '@/ai/flows/generate-bold-minimalist-image';
 import { generatePixelArtImage } from '@/ai/flows/generate-pixel-art-image';
+import { generateTexturedGrainImage } from '@/ai/flows/generate-textured-grain-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -45,6 +46,15 @@ const formSchema = z.object({
   })
   .refine((data) => {
     if (data.style === 'pixel-retro-futurism') {
+      return !!data.colorPalette;
+    }
+    return true;
+  }, {
+    message: "Color palette is required for this style.",
+    path: ["colorPalette"],
+  })
+  .refine((data) => {
+    if (data.style === 'textured-grain') {
       return !!data.colorPalette;
     }
     return true;
@@ -92,6 +102,17 @@ export function ImageGenerator() {
         }
       } else if (values.style === 'pixel-retro-futurism') {
         const result = await generatePixelArtImage({ 
+          postIdea: values.postIdea,
+          colorPalette: values.colorPalette!,
+          imageElements: values.imageElements,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
+      } else if (values.style === 'textured-grain') {
+        const result = await generateTexturedGrainImage({
           postIdea: values.postIdea,
           colorPalette: values.colorPalette!,
           imageElements: values.imageElements,
@@ -163,7 +184,23 @@ export function ImageGenerator() {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Image Style</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        form.setValue('imageElements', '');
+                        if (value === 'bold-minimalist') {
+                          form.setValue('colorPalette', 'navy-orange');
+                          form.setValue('fontStyle', 'modern-sans-serif');
+                        } else if (value === 'pixel-retro-futurism') {
+                          form.setValue('colorPalette', 'Neon Pink & Electric Blue');
+                          form.setValue('fontStyle', undefined, { shouldValidate: true });
+                        } else if (value === 'textured-grain') {
+                          form.setValue('colorPalette', 'muted-tones');
+                          form.setValue('fontStyle', undefined, { shouldValidate: true });
+                        }
+                      }}
+                      defaultValue={field.value}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select a style" />
@@ -172,6 +209,7 @@ export function ImageGenerator() {
                       <SelectContent>
                         <SelectItem value="bold-minimalist">Bold Minimalist</SelectItem>
                         <SelectItem value="pixel-retro-futurism">Pixel Retro-Futurism</SelectItem>
+                        <SelectItem value="textured-grain">Textured Grain</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -278,6 +316,49 @@ export function ImageGenerator() {
                         <FormControl>
                           <Input
                             placeholder="e.g., joystick, floppy disk, pixelated dollar sign"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>Describe key visuals for the AI to include.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'textured-grain' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="colorPalette"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Color Palette</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a color palette" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="muted-tones">Muted Tones</SelectItem>
+                            <SelectItem value="bold-vintage">Bold Vintage</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="imageElements"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Image Elements (Optional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., rectangle frame, underline bar"
                             {...field}
                           />
                         </FormControl>
