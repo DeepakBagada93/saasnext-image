@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from "@/hooks/use-toast";
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 
 import { generateBoldMinimalistImage } from '@/ai/flows/generate-bold-minimalist-image';
 import { generatePixelArtImage } from '@/ai/flows/generate-pixel-art-image';
@@ -21,6 +22,7 @@ import { generateTexturedGrainImage } from '@/ai/flows/generate-textured-grain-i
 import { generateMaximalistImage } from '@/ai/flows/generate-maximalist-image';
 import { generateHandcraftedImage } from '@/ai/flows/generate-handcrafted-image';
 import { generateAbstractCollageImage } from '@/ai/flows/generate-abstract-collage-image';
+import { generateCorporateGradientImage } from '@/ai/flows/generate-corporate-gradient-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -32,6 +34,8 @@ const formSchema = z.object({
   sceneDescription: z.string().optional(),
   illustrativeMotifs: z.string().optional(),
   emotiveTheme: z.string().optional(),
+  humanSubject: z.string().optional(),
+  includeQRCode: z.boolean().optional(),
 }).refine((data) => {
     if (data.style === 'bold-minimalist') {
       return !!data.colorPalette;
@@ -94,7 +98,26 @@ const formSchema = z.object({
   }, {
     message: "An emotive theme is required for this style.",
     path: ["emotiveTheme"],
+  })
+  .refine((data) => {
+    if (data.style === 'dynamic-corporate-gradient') {
+      return !!data.colorPalette;
+    }
+    return true;
+  }, {
+    message: "A gradient palette is required for this style.",
+    path: ["colorPalette"],
+  })
+  .refine((data) => {
+    if (data.style === 'dynamic-corporate-gradient') {
+      return !!data.humanSubject;
+    }
+    return true;
+  }, {
+    message: "A human subject is required for this style.",
+    path: ["humanSubject"],
   });
+
 
 export function ImageGenerator() {
   const [isLoading, setIsLoading] = useState(false);
@@ -113,6 +136,8 @@ export function ImageGenerator() {
       sceneDescription: undefined,
       illustrativeMotifs: undefined,
       emotiveTheme: undefined,
+      humanSubject: undefined,
+      includeQRCode: false,
     }
   });
 
@@ -125,6 +150,8 @@ export function ImageGenerator() {
     form.setValue('sceneDescription', undefined, { shouldValidate: true });
     form.setValue('illustrativeMotifs', undefined, { shouldValidate: true });
     form.setValue('emotiveTheme', undefined, { shouldValidate: true });
+    form.setValue('humanSubject', undefined, { shouldValidate: true });
+    form.setValue('includeQRCode', false, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -191,6 +218,18 @@ export function ImageGenerator() {
         const result = await generateAbstractCollageImage({
           postIdea: values.postIdea,
           emotiveTheme: values.emotiveTheme!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
+      } else if (values.style === 'dynamic-corporate-gradient') {
+        const result = await generateCorporateGradientImage({
+          postIdea: values.postIdea,
+          colorPalette: values.colorPalette!,
+          humanSubject: values.humanSubject!,
+          includeQRCode: values.includeQRCode,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -276,6 +315,10 @@ export function ImageGenerator() {
                           form.setValue('illustrativeMotifs', 'A hand holding a pencil');
                         } else if (value === 'abstract-figurative-collage') {
                           form.setValue('emotiveTheme', 'Identity / Self-expression');
+                        } else if (value === 'dynamic-corporate-gradient') {
+                          form.setValue('colorPalette', 'Deep blue to vibrant orange/yellow');
+                          form.setValue('humanSubject', 'A confident businessperson smiling');
+                          form.setValue('includeQRCode', false);
                         }
                       }}
                       defaultValue={field.value}
@@ -292,6 +335,7 @@ export function ImageGenerator() {
                         <SelectItem value="maximalist-illustration">Maximalist Illustration</SelectItem>
                         <SelectItem value="handcrafted">Handcrafted</SelectItem>
                         <SelectItem value="abstract-figurative-collage">Abstract Figurative Collage</SelectItem>
+                        <SelectItem value="dynamic-corporate-gradient">Dynamic Corporate Gradient</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -533,6 +577,75 @@ export function ImageGenerator() {
                         </Select>
                         <FormDescription>Choose a central theme for the collage.</FormDescription>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'dynamic-corporate-gradient' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="colorPalette"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gradient Palette</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a gradient palette" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Deep blue to vibrant orange/yellow">Blue to Orange</SelectItem>
+                            <SelectItem value="Royal purple to sky blue">Purple to Blue</SelectItem>
+                            <SelectItem value="Cool teal to steel gray">Teal to Gray</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="humanSubject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Human Subject</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a human subject" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A confident businessperson smiling">Confident Businessperson</SelectItem>
+                            <SelectItem value="A tech specialist using a tablet">Tech Specialist with Tablet</SelectItem>
+                            <SelectItem value="A diverse team member with a professional look">Diverse Team Member</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="includeQRCode"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Include QR Code Area</FormLabel>
+                          <FormDescription>
+                            Add a placeholder for a QR code.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
