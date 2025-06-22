@@ -16,7 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from '@/components/ui/input';
 
 import { generateBoldMinimalistImage } from '@/ai/flows/generate-bold-minimalist-image';
-import { Skeleton } from './ui/skeleton';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   postIdea: z.string().min(10, { message: "Please share a bit more about your idea (min. 10 characters)." }).max(500, { message: "Idea is too long (max. 500 characters)." }),
@@ -42,6 +42,8 @@ export function ImageGenerator() {
       imageElements: "",
     }
   });
+
+  const selectedStyle = form.watch("style");
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -91,15 +93,15 @@ export function ImageGenerator() {
 
   return (
     <div className="grid md:grid-cols-2 gap-8 items-start">
-      <Card className="shadow-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl">Create Your Visual</CardTitle>
-          <CardDescription className="font-body">
-            Describe your post and select a style. Our AI will do the rest.
-          </CardDescription>
-        </CardHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <Card className="shadow-lg">
+            <CardHeader>
+              <CardTitle className="font-headline text-2xl">Create Your Visual</CardTitle>
+              <CardDescription className="font-body">
+                Describe your post and select a style. Our AI will do the rest.
+              </CardDescription>
+            </CardHeader>
             <CardContent className="space-y-6">
               <FormField
                 control={form.control}
@@ -115,67 +117,6 @@ export function ImageGenerator() {
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="colorPalette"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Color Palette</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a color palette" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="navy-orange">Navy & Orange</SelectItem>
-                        <SelectItem value="black-gold">Black & Gold</SelectItem>
-                        <SelectItem value="teal-white">Teal & White</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-               <FormField
-                control={form.control}
-                name="fontStyle"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Font Style</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a font style" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="modern-sans-serif">Modern Sans-Serif</SelectItem>
-                        <SelectItem value="classic-serif">Classic Serif</SelectItem>
-                        <SelectItem value="bold-display">Bold Display</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="imageElements"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image Elements (Optional)</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="e.g., upward arrow, bar chart, subtle gears"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormDescription>Describe key visuals for the AI to include.</FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -200,6 +141,73 @@ export function ImageGenerator() {
                   </FormItem>
                 )}
               />
+              
+              {selectedStyle === 'bold-minimalist' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="colorPalette"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Color Palette</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a color palette" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="navy-orange">Navy & Orange</SelectItem>
+                            <SelectItem value="black-gold">Black & Gold</SelectItem>
+                            <SelectItem value="teal-white">Teal & White</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="fontStyle"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Font Style</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a font style" />
+                            </Trigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="modern-sans-serif">Modern Sans-Serif</SelectItem>
+                            <SelectItem value="classic-serif">Classic Serif</SelectItem>
+                            <SelectItem value="bold-display">Bold Display</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="imageElements"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Image Elements (Optional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., upward arrow, bar chart, subtle gears"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>Describe key visuals for the AI to include.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full font-bold" disabled={isLoading}>
@@ -216,9 +224,9 @@ export function ImageGenerator() {
                 )}
               </Button>
             </CardFooter>
-          </form>
-        </Form>
-      </Card>
+          </Card>
+        </form>
+      </Form>
 
       <Card className="shadow-lg min-h-[30rem] flex flex-col">
         <CardHeader>
