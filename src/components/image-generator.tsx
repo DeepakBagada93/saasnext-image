@@ -16,15 +16,42 @@ import { useToast } from "@/hooks/use-toast";
 import { Input } from '@/components/ui/input';
 
 import { generateBoldMinimalistImage } from '@/ai/flows/generate-bold-minimalist-image';
+import { generatePixelArtImage } from '@/ai/flows/generate-pixel-art-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   postIdea: z.string().min(10, { message: "Please share a bit more about your idea (min. 10 characters)." }).max(500, { message: "Idea is too long (max. 500 characters)." }),
-  colorPalette: z.string({ required_error: "Please select a color palette." }),
-  fontStyle: z.string({ required_error: "Please select a font style." }),
-  imageElements: z.string().optional(),
   style: z.string({ required_error: "Please select a style." }),
-});
+  colorPalette: z.string().optional(),
+  fontStyle: z.string().optional(),
+  imageElements: z.string().optional(),
+}).refine((data) => {
+    if (data.style === 'bold-minimalist') {
+      return !!data.colorPalette;
+    }
+    return true;
+  }, {
+    message: "Color palette is required for this style.",
+    path: ["colorPalette"],
+  })
+  .refine((data) => {
+    if (data.style === 'bold-minimalist') {
+      return !!data.fontStyle;
+    }
+    return true;
+  }, {
+    message: "Font style is required for this style.",
+    path: ["fontStyle"],
+  })
+  .refine((data) => {
+    if (data.style === 'pixel-retro-futurism') {
+      return !!data.colorPalette;
+    }
+    return true;
+  }, {
+    message: "Color palette is required for this style.",
+    path: ["colorPalette"],
+  });
 
 export function ImageGenerator() {
   const [isLoading, setIsLoading] = useState(false);
@@ -54,24 +81,33 @@ export function ImageGenerator() {
       if (values.style === 'bold-minimalist') {
         const result = await generateBoldMinimalistImage({ 
           postIdea: values.postIdea,
-          colorPalette: values.colorPalette,
-          fontStyle: values.fontStyle,
+          colorPalette: values.colorPalette!,
+          fontStyle: values.fontStyle!,
           imageElements: values.imageElements,
         });
         if (result.image) {
           setGeneratedImage(result.image);
         } else {
-          const errorMessage = "Failed to generate image. The AI did not return an image.";
-          setError(errorMessage);
-          toast({ title: "Generation Failed", description: errorMessage, variant: "destructive" });
+          throw new Error("The AI did not return an image.");
+        }
+      } else if (values.style === 'pixel-retro-futurism') {
+        const result = await generatePixelArtImage({ 
+          postIdea: values.postIdea,
+          colorPalette: values.colorPalette!,
+          imageElements: values.imageElements,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
         }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
         toast({ title: "Unsupported Style", description: errorMessage, variant: "destructive" });
       }
-    } catch (e) {
-      const errorMessage = "An error occurred while generating the image.";
+    } catch (e: any) {
+      const errorMessage = e.message || "An error occurred while generating the image.";
       setError(errorMessage);
       toast({ title: "Generation Error", description: "Something went wrong. Please try again later.", variant: "destructive" });
       console.error(e);
@@ -135,6 +171,7 @@ export function ImageGenerator() {
                       </FormControl>
                       <SelectContent>
                         <SelectItem value="bold-minimalist">Bold Minimalist</SelectItem>
+                        <SelectItem value="pixel-retro-futurism">Pixel Retro-Futurism</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -197,6 +234,50 @@ export function ImageGenerator() {
                         <FormControl>
                           <Input
                             placeholder="e.g., upward arrow, bar chart, subtle gears"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>Describe key visuals for the AI to include.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+              
+              {selectedStyle === 'pixel-retro-futurism' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="colorPalette"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Color Palette</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a color palette" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Neon Pink & Electric Blue">Neon Pink & Electric Blue</SelectItem>
+                            <SelectItem value="Bright Yellow & VHS Green">Bright Yellow & VHS Green</SelectItem>
+                            <SelectItem value="Electric Blue & Bright Yellow">Electric Blue & Bright Yellow</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="imageElements"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Image Elements (Optional)</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., joystick, floppy disk, pixelated dollar sign"
                             {...field}
                           />
                         </FormControl>
