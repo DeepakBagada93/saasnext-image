@@ -75,7 +75,9 @@ const generateCorporateGradientImageFlow = ai.defineFlow(
       throw new Error('Failed to generate text content.');
     }
 
-    const imagePrompt = `Design a square (1:1) social media post in a clean, highly polished corporate style with a modern gradient aesthetic.
+    const featuresList = textContent.features.map(f => `- ${f}`).join('\n');
+
+    let imagePrompt = `Design a square (1:1) social media post in a clean, highly polished corporate style with a modern gradient aesthetic.
 
 🎨 Gradient Background:
 - Use a smooth, multi-color gradient background blending these corporate tones: "${input.colorPalette}".
@@ -95,9 +97,7 @@ const generateCorporateGradientImageFlow = ai.defineFlow(
 
 📑 Structured Feature List:
 - Display the following list of features clearly with minimal icons (like a simple checkmark ✔ or dot •) before each item:
-{{#each features}}
-- {{this}}
-{{/each}}
+${featuresList}
 
 🔘 Call to Action (CTA) Button:
 - Create a clear, high-contrast pill-shaped button in the bottom-right or center-bottom with the text: "${textContent.ctaText}".
@@ -109,16 +109,18 @@ const generateCorporateGradientImageFlow = ai.defineFlow(
 🌀 Digital Accent Graphics:
 - Integrate subtle abstract elements like clean lines, floating dots, or soft curves to guide the eye and add a modern, digital feel.
 
-{{#if includeQRCode}}
-🔳 QR Code Area:
-- Allocate a clean corner (bottom-left) for a placeholder QR code.
-- Style it with a soft border and add the label "SCAN TO CONNECT" below it.
-{{/if}}
-
 ✅ Overall Feel:
 - Professional, clean, forward-thinking, and trustworthy.
 - Perfect for service promotions, SaaS marketing, or digital consultancy.
 - The entire composition must look sophisticated and cutting-edge.`;
+    
+    if (input.includeQRCode) {
+        imagePrompt += `
+
+🔳 QR Code Area:
+- Allocate a clean corner (bottom-left) for a placeholder QR code.
+- Style it with a soft border and add the label "SCAN TO CONNECT" below it.`;
+    }
 
 
     const {media} = await ai.generate({
