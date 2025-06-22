@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const GeneratePixelArtImageInputSchema = z.object({
   postIdea: z.string().describe('The idea for the social media post.'),
@@ -97,7 +97,7 @@ const generatePixelArtImageFlow = ai.defineFlow(
 - Design should feel like a blend of arcade-style graphics and futuristic UI from the 80s.
 
 🎨 Color Palette:
-- Use the "{{colorPalette}}" theme.
+- Use the "${input.colorPalette}" theme.
 - For "Neon Pink & Electric Blue": Use a deep black (#000000) or midnight purple (#1A001A) background. Use neon pink (#FF00FF) and electric blue (#00FFFF) for text, borders, and visual elements.
 - For "Bright Yellow & VHS Green": Use a dark retro background. Use bright yellow (#FFFF00) and VHS green (#00FF00) for accents.
 - For "Electric Blue & Bright Yellow": Use a dark background. Use electric blue (#00FFFF) and bright yellow (#FFFF00) for high-contrast elements.
