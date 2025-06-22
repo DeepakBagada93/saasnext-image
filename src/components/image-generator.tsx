@@ -23,6 +23,7 @@ import { generateMaximalistImage } from '@/ai/flows/generate-maximalist-image';
 import { generateHandcraftedImage } from '@/ai/flows/generate-handcrafted-image';
 import { generateAbstractCollageImage } from '@/ai/flows/generate-abstract-collage-image';
 import { generateCorporateGradientImage } from '@/ai/flows/generate-corporate-gradient-image';
+import { generateBoldTypographicImage } from '@/ai/flows/generate-bold-typographic-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -236,6 +237,15 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'bold-typographic-impact') {
+        const result = await generateBoldTypographicImage({
+          postIdea: values.postIdea,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -336,6 +346,7 @@ export function ImageGenerator() {
                         <SelectItem value="handcrafted">Handcrafted</SelectItem>
                         <SelectItem value="abstract-figurative-collage">Abstract Figurative Collage</SelectItem>
                         <SelectItem value="dynamic-corporate-gradient">Dynamic Corporate Gradient</SelectItem>
+                        <SelectItem value="bold-typographic-impact">Bold Typographic Impact</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

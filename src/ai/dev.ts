@@ -9,3 +9,4 @@ import '@/ai/flows/generate-maximalist-image.ts';
 import '@/ai/flows/generate-handcrafted-image.ts';
 import '@/ai/flows/generate-abstract-collage-image.ts';
 import '@/ai/flows/generate-corporate-gradient-image.ts';
+import '@/ai/flows/generate-bold-typographic-image.ts';
