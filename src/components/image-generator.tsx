@@ -19,6 +19,7 @@ import { generateBoldMinimalistImage } from '@/ai/flows/generate-bold-minimalist
 import { generatePixelArtImage } from '@/ai/flows/generate-pixel-art-image';
 import { generateTexturedGrainImage } from '@/ai/flows/generate-textured-grain-image';
 import { generateMaximalistImage } from '@/ai/flows/generate-maximalist-image';
+import { generateHandcraftedImage } from '@/ai/flows/generate-handcrafted-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -28,6 +29,7 @@ const formSchema = z.object({
   fontStyle: z.string().optional(),
   imageElements: z.string().optional(),
   sceneDescription: z.string().optional(),
+  illustrativeMotifs: z.string().optional(),
 }).refine((data) => {
     if (data.style === 'bold-minimalist') {
       return !!data.colorPalette;
@@ -72,6 +74,15 @@ const formSchema = z.object({
   }, {
     message: "A scene example is required for this style.",
     path: ["sceneDescription"],
+  })
+  .refine((data) => {
+    if (data.style === 'handcrafted') {
+      return !!data.illustrativeMotifs;
+    }
+    return true;
+  }, {
+    message: "An illustrative motif is required for this style.",
+    path: ["illustrativeMotifs"],
   });
 
 export function ImageGenerator() {
@@ -89,10 +100,19 @@ export function ImageGenerator() {
       fontStyle: "modern-sans-serif",
       imageElements: "",
       sceneDescription: undefined,
+      illustrativeMotifs: undefined,
     }
   });
 
   const selectedStyle = form.watch("style");
+
+  const resetOptionalFields = () => {
+    form.setValue('colorPalette', undefined, { shouldValidate: true });
+    form.setValue('fontStyle', undefined, { shouldValidate: true });
+    form.setValue('imageElements', '', { shouldValidate: true });
+    form.setValue('sceneDescription', undefined, { shouldValidate: true });
+    form.setValue('illustrativeMotifs', undefined, { shouldValidate: true });
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -138,6 +158,16 @@ export function ImageGenerator() {
         const result = await generateMaximalistImage({
           postIdea: values.postIdea,
           sceneDescription: values.sceneDescription!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
+      } else if (values.style === 'handcrafted') {
+        const result = await generateHandcraftedImage({
+          postIdea: values.postIdea,
+          illustrativeMotifs: values.illustrativeMotifs!,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -209,26 +239,18 @@ export function ImageGenerator() {
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
+                        resetOptionalFields();
                         if (value === 'bold-minimalist') {
                           form.setValue('colorPalette', 'navy-orange');
                           form.setValue('fontStyle', 'modern-sans-serif');
-                          form.setValue('imageElements', '');
-                          form.setValue('sceneDescription', undefined, { shouldValidate: true });
                         } else if (value === 'pixel-retro-futurism') {
                           form.setValue('colorPalette', 'Neon Pink & Electric Blue');
-                          form.setValue('fontStyle', undefined, { shouldValidate: true });
-                          form.setValue('imageElements', '');
-                          form.setValue('sceneDescription', undefined, { shouldValidate: true });
                         } else if (value === 'textured-grain') {
                           form.setValue('colorPalette', 'muted-tones');
-                          form.setValue('fontStyle', undefined, { shouldValidate: true });
-                          form.setValue('imageElements', '');
-                          form.setValue('sceneDescription', undefined, { shouldValidate: true });
                         } else if (value === 'maximalist-illustration') {
                            form.setValue('sceneDescription', 'A flourishing creative studio overrun with plants, tools, books, and glowing objects');
-                           form.setValue('colorPalette', undefined, { shouldValidate: true });
-                           form.setValue('fontStyle', undefined, { shouldValidate: true });
-                           form.setValue('imageElements', '');
+                        } else if (value === 'handcrafted') {
+                          form.setValue('illustrativeMotifs', 'A hand holding a pencil');
                         }
                       }}
                       defaultValue={field.value}
@@ -243,6 +265,7 @@ export function ImageGenerator() {
                         <SelectItem value="pixel-retro-futurism">Pixel Retro-Futurism</SelectItem>
                         <SelectItem value="textured-grain">Textured Grain</SelectItem>
                         <SelectItem value="maximalist-illustration">Maximalist Illustration</SelectItem>
+                        <SelectItem value="handcrafted">Handcrafted</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -425,6 +448,35 @@ export function ImageGenerator() {
                           </SelectContent>
                         </Select>
                         <FormDescription>Choose a pre-defined scene to generate.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'handcrafted' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="illustrativeMotifs"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Illustrative Motifs</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a motif" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A hand holding a pencil">Hand holding a pencil</SelectItem>
+                            <SelectItem value="Doodle-style lightbulb, leaves, sun">Doodle-style elements</SelectItem>
+                            <SelectItem value="Torn paper borders with botanical overlays">Torn paper & botanicals</SelectItem>
+                            <SelectItem value="Thumbprint or handprint textures">Thumbprint textures</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Choose a central theme for the illustration.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
