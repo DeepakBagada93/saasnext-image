@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { generateBoldMinimalistImage } from '@/ai/flows/generate-bold-minimalist-image';
 import { generatePixelArtImage } from '@/ai/flows/generate-pixel-art-image';
 import { generateTexturedGrainImage } from '@/ai/flows/generate-textured-grain-image';
+import { generateMaximalistImage } from '@/ai/flows/generate-maximalist-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -26,6 +27,7 @@ const formSchema = z.object({
   colorPalette: z.string().optional(),
   fontStyle: z.string().optional(),
   imageElements: z.string().optional(),
+  sceneDescription: z.string().optional(),
 }).refine((data) => {
     if (data.style === 'bold-minimalist') {
       return !!data.colorPalette;
@@ -61,6 +63,15 @@ const formSchema = z.object({
   }, {
     message: "Color palette is required for this style.",
     path: ["colorPalette"],
+  })
+  .refine((data) => {
+    if (data.style === 'maximalist-illustration') {
+      return !!data.sceneDescription;
+    }
+    return true;
+  }, {
+    message: "A scene example is required for this style.",
+    path: ["sceneDescription"],
   });
 
 export function ImageGenerator() {
@@ -77,6 +88,7 @@ export function ImageGenerator() {
       colorPalette: "navy-orange",
       fontStyle: "modern-sans-serif",
       imageElements: "",
+      sceneDescription: undefined,
     }
   });
 
@@ -116,6 +128,16 @@ export function ImageGenerator() {
           postIdea: values.postIdea,
           colorPalette: values.colorPalette!,
           imageElements: values.imageElements,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
+      } else if (values.style === 'maximalist-illustration') {
+        const result = await generateMaximalistImage({
+          postIdea: values.postIdea,
+          sceneDescription: values.sceneDescription!,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -187,16 +209,26 @@ export function ImageGenerator() {
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
-                        form.setValue('imageElements', '');
                         if (value === 'bold-minimalist') {
                           form.setValue('colorPalette', 'navy-orange');
                           form.setValue('fontStyle', 'modern-sans-serif');
+                          form.setValue('imageElements', '');
+                          form.setValue('sceneDescription', undefined, { shouldValidate: true });
                         } else if (value === 'pixel-retro-futurism') {
                           form.setValue('colorPalette', 'Neon Pink & Electric Blue');
                           form.setValue('fontStyle', undefined, { shouldValidate: true });
+                          form.setValue('imageElements', '');
+                          form.setValue('sceneDescription', undefined, { shouldValidate: true });
                         } else if (value === 'textured-grain') {
                           form.setValue('colorPalette', 'muted-tones');
                           form.setValue('fontStyle', undefined, { shouldValidate: true });
+                          form.setValue('imageElements', '');
+                          form.setValue('sceneDescription', undefined, { shouldValidate: true });
+                        } else if (value === 'maximalist-illustration') {
+                           form.setValue('sceneDescription', 'A flourishing creative studio overrun with plants, tools, books, and glowing objects');
+                           form.setValue('colorPalette', undefined, { shouldValidate: true });
+                           form.setValue('fontStyle', undefined, { shouldValidate: true });
+                           form.setValue('imageElements', '');
                         }
                       }}
                       defaultValue={field.value}
@@ -210,6 +242,7 @@ export function ImageGenerator() {
                         <SelectItem value="bold-minimalist">Bold Minimalist</SelectItem>
                         <SelectItem value="pixel-retro-futurism">Pixel Retro-Futurism</SelectItem>
                         <SelectItem value="textured-grain">Textured Grain</SelectItem>
+                        <SelectItem value="maximalist-illustration">Maximalist Illustration</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -363,6 +396,35 @@ export function ImageGenerator() {
                           />
                         </FormControl>
                         <FormDescription>Describe key visuals for the AI to include.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'maximalist-illustration' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="sceneDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Scene Example</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a scene example" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A flourishing creative studio overrun with plants, tools, books, and glowing objects">Creative Studio</SelectItem>
+                            <SelectItem value="A botanical dreamscape with paintbrushes growing from the soil and stars woven into leaves">Botanical Dreamscape</SelectItem>
+                            <SelectItem value="A whimsical marketplace filled with icons of creativity (like ideas in jars, fonts on fabrics, or painted animals)">Whimsical Marketplace</SelectItem>
+                            <SelectItem value="A character illustration of a whimsical creator surrounded by flowing, fantastical elements related to branding/design">Creator Character</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Choose a pre-defined scene to generate.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
