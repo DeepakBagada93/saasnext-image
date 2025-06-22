@@ -176,7 +176,7 @@ export function ImageGenerator() {
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a font style" />
-                            </Trigger>
+                            </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             <SelectItem value="modern-sans-serif">Modern Sans-Serif</SelectItem>
