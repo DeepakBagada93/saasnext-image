@@ -20,6 +20,7 @@ import { generatePixelArtImage } from '@/ai/flows/generate-pixel-art-image';
 import { generateTexturedGrainImage } from '@/ai/flows/generate-textured-grain-image';
 import { generateMaximalistImage } from '@/ai/flows/generate-maximalist-image';
 import { generateHandcraftedImage } from '@/ai/flows/generate-handcrafted-image';
+import { generateAbstractCollageImage } from '@/ai/flows/generate-abstract-collage-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -30,6 +31,7 @@ const formSchema = z.object({
   imageElements: z.string().optional(),
   sceneDescription: z.string().optional(),
   illustrativeMotifs: z.string().optional(),
+  emotiveTheme: z.string().optional(),
 }).refine((data) => {
     if (data.style === 'bold-minimalist') {
       return !!data.colorPalette;
@@ -83,6 +85,15 @@ const formSchema = z.object({
   }, {
     message: "An illustrative motif is required for this style.",
     path: ["illustrativeMotifs"],
+  })
+  .refine((data) => {
+    if (data.style === 'abstract-figurative-collage') {
+      return !!data.emotiveTheme;
+    }
+    return true;
+  }, {
+    message: "An emotive theme is required for this style.",
+    path: ["emotiveTheme"],
   });
 
 export function ImageGenerator() {
@@ -101,6 +112,7 @@ export function ImageGenerator() {
       imageElements: "",
       sceneDescription: undefined,
       illustrativeMotifs: undefined,
+      emotiveTheme: undefined,
     }
   });
 
@@ -112,6 +124,7 @@ export function ImageGenerator() {
     form.setValue('imageElements', '', { shouldValidate: true });
     form.setValue('sceneDescription', undefined, { shouldValidate: true });
     form.setValue('illustrativeMotifs', undefined, { shouldValidate: true });
+    form.setValue('emotiveTheme', undefined, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -168,6 +181,16 @@ export function ImageGenerator() {
         const result = await generateHandcraftedImage({
           postIdea: values.postIdea,
           illustrativeMotifs: values.illustrativeMotifs!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
+      } else if (values.style === 'abstract-figurative-collage') {
+        const result = await generateAbstractCollageImage({
+          postIdea: values.postIdea,
+          emotiveTheme: values.emotiveTheme!,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -251,6 +274,8 @@ export function ImageGenerator() {
                            form.setValue('sceneDescription', 'A flourishing creative studio overrun with plants, tools, books, and glowing objects');
                         } else if (value === 'handcrafted') {
                           form.setValue('illustrativeMotifs', 'A hand holding a pencil');
+                        } else if (value === 'abstract-figurative-collage') {
+                          form.setValue('emotiveTheme', 'Identity / Self-expression');
                         }
                       }}
                       defaultValue={field.value}
@@ -266,6 +291,7 @@ export function ImageGenerator() {
                         <SelectItem value="textured-grain">Textured Grain</SelectItem>
                         <SelectItem value="maximalist-illustration">Maximalist Illustration</SelectItem>
                         <SelectItem value="handcrafted">Handcrafted</SelectItem>
+                        <SelectItem value="abstract-figurative-collage">Abstract Figurative Collage</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -477,6 +503,35 @@ export function ImageGenerator() {
                           </SelectContent>
                         </Select>
                         <FormDescription>Choose a central theme for the illustration.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'abstract-figurative-collage' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="emotiveTheme"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Emotive Theme</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a theme" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Identity / Self-expression">Identity / Self-expression</SelectItem>
+                            <SelectItem value="Chaos vs. clarity">Chaos vs. clarity</SelectItem>
+                            <SelectItem value="Emotion beneath the surface">Emotion beneath the surface</SelectItem>
+                            <SelectItem value="Fragmented stories or digital disconnection">Fragmented stories</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Choose a central theme for the collage.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
