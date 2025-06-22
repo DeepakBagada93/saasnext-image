@@ -12,6 +12,14 @@ import {z} from 'genkit';
 
 const GenerateBoldMinimalistImageInputSchema = z.object({
   postIdea: z.string().describe('The idea for the social media post.'),
+  colorPalette: z.string().describe('The selected color palette for the image.'),
+  fontStyle: z.string().describe('The selected font style for the text.'),
+  imageElements: z
+    .string()
+    .optional()
+    .describe(
+      'Optional elements to include in the image, like "graph" or "upward arrow".'
+    ),
 });
 export type GenerateBoldMinimalistImageInput = z.infer<
   typeof GenerateBoldMinimalistImageInputSchema
@@ -55,7 +63,7 @@ export async function generateBoldMinimalistImage(
 
 const textContentPrompt = ai.definePrompt({
   name: 'generateTextContentPrompt',
-  input: {schema: GenerateBoldMinimalistImageInputSchema},
+  input: {schema: z.object({ postIdea: GenerateBoldMinimalistImageInputSchema.shape.postIdea })},
   output: {schema: TextContentSchema},
   prompt: `You are a creative copywriter for a modern marketing agency.
 Given the following social media post idea, generate the content for a bold, minimalist visual.
@@ -77,7 +85,7 @@ const generateBoldMinimalistImageFlow = ai.defineFlow(
     outputSchema: GenerateBoldMinimalistImageOutputSchema,
   },
   async input => {
-    const {output: textContent} = await textContentPrompt(input);
+    const {output: textContent} = await textContentPrompt({ postIdea: input.postIdea });
 
     if (!textContent) {
       throw new Error('Failed to generate text content.');
@@ -93,20 +101,31 @@ Follow these detailed style and layout instructions:
 - Inspired by magazine advertisements.
 
 🎨 Color Palette:
-- Background: Solid navy blue (#001F3F) with a subtle abstract noise or a soft diagonal texture at about 5% opacity.
-- Arrow: A large, upward-pointing arrow in vibrant orange (#FF6A00), positioned in the center.
-- Headline Text: White (#FFFFFF), all caps, and bold.
-- Supporting Text: A clean, modern font in light gray (#D3D3D3).
-- CTA Button: A pill-shaped button with an orange (#FF6A00) background and white (#FFFFFF) text.
+- Use the "${input.colorPalette}" theme.
+- For "navy-orange": Use a solid navy blue (#001F3F) background and vibrant orange (#FF6A00) for accents like arrows or underlines. Text is white (#FFFFFF) or light gray (#D3D3D3).
+- For "black-gold": Use a deep black (#000000) background and a rich gold (#FFD700) for accents. Text is white (#FFFFFF).
+- For "teal-white": Use a modern teal (#008080) background with white (#FFFFFF) accents and dark gray (#36454F) text.
+- The background should have a subtle abstract noise or a soft diagonal texture at about 5% opacity.
+
+✒️ Font Style:
+- Use a "${input.fontStyle}" font.
+- For "modern-sans-serif": Use a clean, geometric sans-serif font like Poppins or Lato.
+- For "classic-serif": Use an elegant, high-contrast serif font like Playfair Display or Lora.
+- For "bold-display": Use a thick, impactful display font perfect for headlines.
 
 📍 Layout & Content:
-- Headline: "${textContent.headline}". Place it at the top-left or top-center. It should be large.
+- Headline: "${textContent.headline}". Place it at the top-left or top-center. It should be large and in all caps.
 - Supporting Text: "${textContent.supportingText}". Place it directly below the headline.
-- CTA Button: Create a call-to-action button in the bottom-right corner with the text "${textContent.ctaText}".
+- CTA Button: Create a pill-shaped call-to-action button in the bottom-right corner with the text "${textContent.ctaText}". The button color should match the accent color of the chosen palette, with white text.
 
-🧩 Optional Extras:
-- Icons: Include subtle, white, line-style icons (megaphone, chart, email) near the central arrow with about 20% opacity.
-- Underline: Add a thin, orange (#FF6A00) underline beneath the headline for an editorial touch.`;
+🧩 Core Visual Elements:
+- Include the following elements as the central focus: ${input.imageElements || 'a large, upward-pointing arrow in the accent color'}.
+- Make these elements prominent but minimalist.
+
+🧩 Optional Extras (if they fit the design):
+- Subtle white line-style icons (e.g., megaphone, chart, email) near the central elements with about 20% opacity.
+- A thin underline in the accent color beneath the headline for an editorial touch.`;
+
 
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
