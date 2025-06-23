@@ -24,6 +24,7 @@ import { generateHandcraftedImage } from '@/ai/flows/generate-handcrafted-image'
 import { generateAbstractCollageImage } from '@/ai/flows/generate-abstract-collage-image';
 import { generateCorporateGradientImage } from '@/ai/flows/generate-corporate-gradient-image';
 import { generateBoldTypographicImage } from '@/ai/flows/generate-bold-typographic-image';
+import { generateOptimisticBusinessImage } from '@/ai/flows/generate-optimistic-business-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -37,87 +38,32 @@ const formSchema = z.object({
   emotiveTheme: z.string().optional(),
   humanSubject: z.string().optional(),
   includeQRCode: z.boolean().optional(),
-}).refine((data) => {
-    if (data.style === 'bold-minimalist') {
-      return !!data.colorPalette;
-    }
-    return true;
-  }, {
-    message: "Color palette is required for this style.",
-    path: ["colorPalette"],
-  })
-  .refine((data) => {
-    if (data.style === 'bold-minimalist') {
-      return !!data.fontStyle;
-    }
-    return true;
-  }, {
-    message: "Font style is required for this style.",
-    path: ["fontStyle"],
-  })
-  .refine((data) => {
-    if (data.style === 'pixel-retro-futurism') {
-      return !!data.colorPalette;
-    }
-    return true;
-  }, {
-    message: "Color palette is required for this style.",
-    path: ["colorPalette"],
-  })
-  .refine((data) => {
-    if (data.style === 'textured-grain') {
-      return !!data.colorPalette;
-    }
-    return true;
-  }, {
-    message: "Color palette is required for this style.",
-    path: ["colorPalette"],
-  })
-  .refine((data) => {
-    if (data.style === 'maximalist-illustration') {
-      return !!data.sceneDescription;
-    }
-    return true;
-  }, {
-    message: "A scene example is required for this style.",
-    path: ["sceneDescription"],
-  })
-  .refine((data) => {
-    if (data.style === 'handcrafted') {
-      return !!data.illustrativeMotifs;
-    }
-    return true;
-  }, {
-    message: "An illustrative motif is required for this style.",
-    path: ["illustrativeMotifs"],
-  })
-  .refine((data) => {
-    if (data.style === 'abstract-figurative-collage') {
-      return !!data.emotiveTheme;
-    }
-    return true;
-  }, {
-    message: "An emotive theme is required for this style.",
-    path: ["emotiveTheme"],
-  })
-  .refine((data) => {
-    if (data.style === 'dynamic-corporate-gradient') {
-      return !!data.colorPalette;
-    }
-    return true;
-  }, {
-    message: "A gradient palette is required for this style.",
-    path: ["colorPalette"],
-  })
-  .refine((data) => {
-    if (data.style === 'dynamic-corporate-gradient') {
-      return !!data.humanSubject;
-    }
-    return true;
-  }, {
-    message: "A human subject is required for this style.",
-    path: ["humanSubject"],
-  });
+}).superRefine((data, ctx) => {
+  switch (data.style) {
+    case 'bold-minimalist':
+      if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Color palette is required for this style.", path: ["colorPalette"] });
+      if (!data.fontStyle) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Font style is required for this style.", path: ["fontStyle"] });
+      break;
+    case 'pixel-retro-futurism':
+    case 'textured-grain':
+      if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Color palette is required for this style.", path: ["colorPalette"] });
+      break;
+    case 'maximalist-illustration':
+      if (!data.sceneDescription) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A scene example is required for this style.", path: ["sceneDescription"] });
+      break;
+    case 'handcrafted':
+      if (!data.illustrativeMotifs) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An illustrative motif is required for this style.", path: ["illustrativeMotifs"] });
+      break;
+    case 'abstract-figurative-collage':
+      if (!data.emotiveTheme) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An emotive theme is required for this style.", path: ["emotiveTheme"] });
+      break;
+    case 'dynamic-corporate-gradient':
+    case 'optimistic-business':
+      if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A gradient palette is required for this style.", path: ["colorPalette"] });
+      if (!data.humanSubject) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A human subject is required for this style.", path: ["humanSubject"] });
+      break;
+  }
+});
 
 
 export function ImageGenerator() {
@@ -246,6 +192,17 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'optimistic-business') {
+        const result = await generateOptimisticBusinessImage({
+          postIdea: values.postIdea,
+          colorPalette: values.colorPalette!,
+          humanSubject: values.humanSubject!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -329,6 +286,9 @@ export function ImageGenerator() {
                           form.setValue('colorPalette', 'Deep blue to vibrant orange/yellow');
                           form.setValue('humanSubject', 'A confident businessperson smiling');
                           form.setValue('includeQRCode', false);
+                        } else if (value === 'optimistic-business') {
+                          form.setValue('colorPalette', 'Bright blue sky to light turquoise');
+                          form.setValue('humanSubject', 'A confident entrepreneur smiling');
                         }
                       }}
                       defaultValue={field.value}
@@ -347,6 +307,7 @@ export function ImageGenerator() {
                         <SelectItem value="abstract-figurative-collage">Abstract Figurative Collage</SelectItem>
                         <SelectItem value="dynamic-corporate-gradient">Dynamic Corporate Gradient</SelectItem>
                         <SelectItem value="bold-typographic-impact">Bold Typographic Impact</SelectItem>
+                        <SelectItem value="optimistic-business">Optimistic Business</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -657,6 +618,56 @@ export function ImageGenerator() {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+              
+              {selectedStyle === 'optimistic-business' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="colorPalette"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gradient Palette</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a gradient palette" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Bright blue sky to light turquoise">Blue Sky to Turquoise</SelectItem>
+                            <SelectItem value="Sunny yellow to soft orange">Sunny Yellow to Orange</SelectItem>
+                            <SelectItem value="Fresh lime green to warm cream">Lime Green to Cream</SelectItem>
+                            <SelectItem value="Uplifting violet to pink mist">Violet to Pink</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="humanSubject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Human Subject</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a human subject" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A confident entrepreneur smiling">Confident Entrepreneur</SelectItem>
+                            <SelectItem value="A person jumping with excitement">Person Jumping</SelectItem>
+                            <SelectItem value="A professional reacting joyfully at a laptop">Joyful Professional</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
