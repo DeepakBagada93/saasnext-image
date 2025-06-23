@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'zod';
+import {z} from 'genkit';
 
 const GenerateBoldTypographicImageInputSchema = z.object({
   postIdea: z.string().describe('The idea for the social media post.'),

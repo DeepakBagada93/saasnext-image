@@ -8,7 +8,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'zod';
+import {z} from 'genkit';
 
 const GenerateMaximalistImageInputSchema = z.object({
   postIdea: z.string().describe('The idea for the social media post.'),
@@ -26,6 +26,7 @@ const TextContentSchema = z.object({
     .describe('An expressive, inspiring headline for the social media post.'),
   supportingText: z
     .string()
+
     .describe(
       'A charming supporting text that tells a story, complementing the headline.'
     ),
