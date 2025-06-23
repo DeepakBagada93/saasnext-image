@@ -11,3 +11,4 @@ import '@/ai/flows/generate-abstract-collage-image.ts';
 import '@/ai/flows/generate-corporate-gradient-image.ts';
 import '@/ai/flows/generate-bold-typographic-image.ts';
 import '@/ai/flows/generate-optimistic-business-image.ts';
+import '@/ai/flows/generate-retro-minimal-image.ts';

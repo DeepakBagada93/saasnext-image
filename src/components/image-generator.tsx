@@ -25,6 +25,7 @@ import { generateAbstractCollageImage } from '@/ai/flows/generate-abstract-colla
 import { generateCorporateGradientImage } from '@/ai/flows/generate-corporate-gradient-image';
 import { generateBoldTypographicImage } from '@/ai/flows/generate-bold-typographic-image';
 import { generateOptimisticBusinessImage } from '@/ai/flows/generate-optimistic-business-image';
+import { generateRetroMinimalImage } from '@/ai/flows/generate-retro-minimal-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -38,6 +39,7 @@ const formSchema = z.object({
   emotiveTheme: z.string().optional(),
   humanSubject: z.string().optional(),
   includeQRCode: z.boolean().optional(),
+  companyName: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -62,6 +64,10 @@ const formSchema = z.object({
       if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A gradient palette is required for this style.", path: ["colorPalette"] });
       if (!data.humanSubject) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A human subject is required for this style.", path: ["humanSubject"] });
       break;
+    case 'retro-minimal-impact':
+      if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A background color is required for this style.", path: ["colorPalette"] });
+      if (!data.companyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A company name is required for this style.", path: ["companyName"] });
+      break;
   }
 });
 
@@ -85,6 +91,7 @@ export function ImageGenerator() {
       emotiveTheme: undefined,
       humanSubject: undefined,
       includeQRCode: false,
+      companyName: "",
     }
   });
 
@@ -99,6 +106,7 @@ export function ImageGenerator() {
     form.setValue('emotiveTheme', undefined, { shouldValidate: true });
     form.setValue('humanSubject', undefined, { shouldValidate: true });
     form.setValue('includeQRCode', false, { shouldValidate: true });
+    form.setValue('companyName', '', { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -203,6 +211,17 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'retro-minimal-impact') {
+        const result = await generateRetroMinimalImage({
+          postIdea: values.postIdea,
+          colorPalette: values.colorPalette!,
+          companyName: values.companyName!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -289,6 +308,9 @@ export function ImageGenerator() {
                         } else if (value === 'optimistic-business') {
                           form.setValue('colorPalette', 'Bright blue sky to light turquoise');
                           form.setValue('humanSubject', 'A confident entrepreneur smiling');
+                        } else if (value === 'retro-minimal-impact') {
+                          form.setValue('colorPalette', '#E94B3C');
+                          form.setValue('companyName', 'ARTECHWAY™');
                         }
                       }}
                       defaultValue={field.value}
@@ -308,6 +330,7 @@ export function ImageGenerator() {
                         <SelectItem value="dynamic-corporate-gradient">Dynamic Corporate Gradient</SelectItem>
                         <SelectItem value="bold-typographic-impact">Bold Typographic Impact</SelectItem>
                         <SelectItem value="optimistic-business">Optimistic Business</SelectItem>
+                        <SelectItem value="retro-minimal-impact">Retro Minimal Impact</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -667,6 +690,51 @@ export function ImageGenerator() {
                             <SelectItem value="A professional reacting joyfully at a laptop">Joyful Professional</SelectItem>
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'retro-minimal-impact' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="colorPalette"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Background Color</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a color" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="#E94B3C">Vibrant Orange-Red</SelectItem>
+                            <SelectItem value="#F2B134">Golden Mustard Yellow</SelectItem>
+                            <SelectItem value="#8D9440">Muted Olive Green</SelectItem>
+                            <SelectItem value="#2C3E50">Retro Navy Blue</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., ARTECHWAY™"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>Enter a brand name to display subtly.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
