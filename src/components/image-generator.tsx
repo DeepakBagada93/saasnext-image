@@ -44,6 +44,9 @@ const formSchema = z.object({
   organizationName: z.string().optional(),
   colorTheme: z.string().optional(),
   backgroundImageTheme: z.string().optional(),
+  highlightAccents: z.boolean().optional(),
+  backgroundText: z.boolean().optional(),
+  borderFrame: z.boolean().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -104,6 +107,9 @@ export function ImageGenerator() {
       organizationName: "",
       colorTheme: undefined,
       backgroundImageTheme: undefined,
+      highlightAccents: false,
+      backgroundText: false,
+      borderFrame: false,
     }
   });
 
@@ -122,6 +128,9 @@ export function ImageGenerator() {
     form.setValue('organizationName', '', { shouldValidate: true });
     form.setValue('colorTheme', undefined, { shouldValidate: true });
     form.setValue('backgroundImageTheme', undefined, { shouldValidate: true });
+    form.setValue('highlightAccents', false, { shouldValidate: true });
+    form.setValue('backgroundText', false, { shouldValidate: true });
+    form.setValue('borderFrame', false, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -210,6 +219,9 @@ export function ImageGenerator() {
         const result = await generateBoldTypographicImage({
           postIdea: values.postIdea,
           backgroundImageTheme: values.backgroundImageTheme,
+          highlightAccents: values.highlightAccents,
+          backgroundText: values.backgroundText,
+          borderFrame: values.borderFrame,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -336,6 +348,9 @@ export function ImageGenerator() {
                           form.setValue('includeQRCode', false);
                         } else if (value === 'bold-typographic-impact') {
                           form.setValue('backgroundImageTheme', 'none');
+                          form.setValue('highlightAccents', false);
+                          form.setValue('backgroundText', false);
+                          form.setValue('borderFrame', false);
                         } else if (value === 'optimistic-business') {
                           form.setValue('colorPalette', 'Bright blue sky to light turquoise');
                           form.setValue('humanSubject', 'A confident entrepreneur smiling');
@@ -685,31 +700,93 @@ export function ImageGenerator() {
               )}
 
               {selectedStyle === 'bold-typographic-impact' && (
-                <FormField
-                  control={form.control}
-                  name="backgroundImageTheme"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Background Texture</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <>
+                  <FormField
+                    control={form.control}
+                    name="backgroundImageTheme"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Background Texture</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a background texture" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="none">None (Solid Black)</SelectItem>
+                            <SelectItem value="Subtle Grunge Texture">Subtle Grunge</SelectItem>
+                            <SelectItem value="Abstract Light Streaks">Light Streaks</SelectItem>
+                            <SelectItem value="Glitchy Digital Noise">Digital Noise</SelectItem>
+                            <SelectItem value="Smoky Atmosphere">Smoky Atmosphere</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Add a subtle background image instead of solid black.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="highlightAccents"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Highlight Accents</FormLabel>
+                          <FormDescription>
+                            Add subtle glows or color shifts to text.
+                          </FormDescription>
+                        </div>
                         <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select a background texture" />
-                          </SelectTrigger>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
                         </FormControl>
-                        <SelectContent>
-                          <SelectItem value="none">None (Solid Black)</SelectItem>
-                          <SelectItem value="Subtle Grunge Texture">Subtle Grunge</SelectItem>
-                          <SelectItem value="Abstract Light Streaks">Light Streaks</SelectItem>
-                          <SelectItem value="Glitchy Digital Noise">Digital Noise</SelectItem>
-                          <SelectItem value="Smoky Atmosphere">Smoky Atmosphere</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormDescription>Add a subtle background image instead of solid black.</FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="backgroundText"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Background Text</FormLabel>
+                          <FormDescription>
+                            Add a faint, repeating text texture.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="borderFrame"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Border Frame</FormLabel>
+                          <FormDescription>
+                            Include a thin frame around the visual.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </>
               )}
               
               {selectedStyle === 'optimistic-business' && (

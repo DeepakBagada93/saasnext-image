@@ -13,6 +13,9 @@ import {z} from 'zod';
 const GenerateBoldTypographicImageInputSchema = z.object({
   postIdea: z.string().describe('The idea for the social media post.'),
   backgroundImageTheme: z.string().optional().describe('The theme for the background image, if any.'),
+  highlightAccents: z.boolean().optional().describe('Whether to add highlight accents to keywords.'),
+  backgroundText: z.boolean().optional().describe('Whether to include a subtle background text layer.'),
+  borderFrame: z.boolean().optional().describe('Whether to add a thin border frame.'),
 });
 export type GenerateBoldTypographicImageInput = z.infer<
   typeof GenerateBoldTypographicImageInputSchema
@@ -95,8 +98,14 @@ const generateBoldTypographicImageFlow = ai.defineFlow(
 
     imagePrompt += `
 ⚪ Color Palette:
-- Primary Text Color: Pure white (#FFFFFF).
-- Highlight Accents (Optional): Use a slightly off-white gray (#AAAAAA) for the less important lines.
+- Primary Text Color: Pure white (#FFFFFF).`;
+
+    if (input.highlightAccents) {
+        imagePrompt += `
+- Highlight Accents: Use a slightly off-white gray (#AAAAAA) for the less important lines and add a subtle soft glow to the most impactful words.`;
+    }
+
+    imagePrompt += `
 
 ✍️ Text Layout (Use this exact text and formatting):
 - Line 1 (Small, Regular weight): "${textContent.line1}"
@@ -110,8 +119,19 @@ const generateBoldTypographicImageFlow = ai.defineFlow(
 - Center-align all text.
 
 🌫️ Subtle Enhancements:
-- Add a subtle blur/glow or shadow effect to the final line of text ("${textContent.line4}") to make it stand out.
-- Add a very faint, almost invisible background text layer repeating a relevant phrase diagonally in a dark gray color like #111111.
+- Add a subtle blur/glow or shadow effect to the final line of text ("${textContent.line4}") to make it stand out.`;
+
+    if (input.backgroundText) {
+        imagePrompt += `
+- Add a very faint, almost invisible background text layer repeating a relevant phrase diagonally in a dark gray color like #111111.`;
+    }
+
+    if (input.borderFrame) {
+        imagePrompt += `
+- Include a thin, off-white border frame around the entire content.`;
+    }
+
+    imagePrompt +=`
 
 ✅ Final Composition Goals:
 - The text is the primary visual. If there is a background image, it must be subtle and supportive. There must be no icons or illustrations.
