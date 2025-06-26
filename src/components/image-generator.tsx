@@ -26,6 +26,7 @@ import { generateCorporateGradientImage } from '@/ai/flows/generate-corporate-gr
 import { generateBoldTypographicImage } from '@/ai/flows/generate-bold-typographic-image';
 import { generateOptimisticBusinessImage } from '@/ai/flows/generate-optimistic-business-image';
 import { generateRetroMinimalImage } from '@/ai/flows/generate-retro-minimal-image';
+import { generatePowerGraphicImage } from '@/ai/flows/generate-power-graphic-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -40,6 +41,8 @@ const formSchema = z.object({
   humanSubject: z.string().optional(),
   includeQRCode: z.boolean().optional(),
   companyName: z.string().optional(),
+  organizationName: z.string().optional(),
+  colorTheme: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -68,6 +71,11 @@ const formSchema = z.object({
       if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A background color is required for this style.", path: ["colorPalette"] });
       if (!data.companyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A company name is required for this style.", path: ["companyName"] });
       break;
+    case 'power-graphic':
+      if (!data.colorTheme) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A color theme is required for this style.", path: ["colorTheme"] });
+      if (!data.humanSubject) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A human subject is required for this style.", path: ["humanSubject"] });
+      if (!data.organizationName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An organization name is required for this style.", path: ["organizationName"] });
+      break;
   }
 });
 
@@ -92,6 +100,8 @@ export function ImageGenerator() {
       humanSubject: undefined,
       includeQRCode: false,
       companyName: "",
+      organizationName: "",
+      colorTheme: undefined,
     }
   });
 
@@ -107,6 +117,8 @@ export function ImageGenerator() {
     form.setValue('humanSubject', undefined, { shouldValidate: true });
     form.setValue('includeQRCode', false, { shouldValidate: true });
     form.setValue('companyName', '', { shouldValidate: true });
+    form.setValue('organizationName', '', { shouldValidate: true });
+    form.setValue('colorTheme', undefined, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -222,6 +234,19 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'power-graphic') {
+        const result = await generatePowerGraphicImage({
+          postIdea: values.postIdea,
+          colorTheme: values.colorTheme!,
+          humanSubject: values.humanSubject!,
+          organizationName: values.organizationName!,
+          includeQRCode: values.includeQRCode,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -311,6 +336,11 @@ export function ImageGenerator() {
                         } else if (value === 'retro-minimal-impact') {
                           form.setValue('colorPalette', '#E94B3C');
                           form.setValue('companyName', 'ARTECHWAY™');
+                        } else if (value === 'power-graphic') {
+                          form.setValue('colorTheme', 'Red Alert');
+                          form.setValue('humanSubject', 'A woman raising her fist in protest');
+                          form.setValue('organizationName', 'PROTESTWEB');
+                          form.setValue('includeQRCode', false);
                         }
                       }}
                       defaultValue={field.value}
@@ -331,6 +361,7 @@ export function ImageGenerator() {
                         <SelectItem value="bold-typographic-impact">Bold Typographic Impact</SelectItem>
                         <SelectItem value="optimistic-business">Optimistic Business</SelectItem>
                         <SelectItem value="retro-minimal-impact">Retro Minimal Impact</SelectItem>
+                        <SelectItem value="power-graphic">Power Graphic</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -736,6 +767,92 @@ export function ImageGenerator() {
                         </FormControl>
                         <FormDescription>Enter a brand name to display subtly.</FormDescription>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'power-graphic' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="colorTheme"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Color Theme</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a color theme" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Red Alert">Red Alert</SelectItem>
+                            <SelectItem value="Blue Wave">Blue Wave</SelectItem>
+                            <SelectItem value="Green Earth">Green Earth</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="humanSubject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Human Subject</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a human subject" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A gender-neutral person shouting">Person Shouting</SelectItem>
+                            <SelectItem value="A woman raising her fist in protest">Woman with Raised Fist</SelectItem>
+                            <SelectItem value="A crowd member chanting or marching">Crowd Member Chanting</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="organizationName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Organization Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., PROTESTWEB"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>Enter the movement/organization name.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="includeQRCode"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Include QR Code</FormLabel>
+                          <FormDescription>
+                            Add a placeholder for a QR code link.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
