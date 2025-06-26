@@ -8,10 +8,11 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const GenerateBoldTypographicImageInputSchema = z.object({
   postIdea: z.string().describe('The idea for the social media post.'),
+  backgroundImageTheme: z.string().optional().describe('The theme for the background image, if any.'),
 });
 export type GenerateBoldTypographicImageInput = z.infer<
   typeof GenerateBoldTypographicImageInputSchema
@@ -78,14 +79,21 @@ const generateBoldTypographicImageFlow = ai.defineFlow(
       throw new Error('Failed to generate text content.');
     }
 
-    const imagePrompt = `Create a high-impact, text-only square social media post (1:1 aspect ratio) in the “Bold Typographic Impact” and “Direct Questioning” design style.
+    let imagePrompt = `Create a high-impact, text-focused square social media post (1:1 aspect ratio) in the “Bold Typographic Impact” and “Direct Questioning” design style.
 
 🖤 Core Style & Layout:
-- Background: Solid deep black (#000000).
 - Typography: Use a clean, geometric sans-serif font family like Helvetica, Inter, or Montserrat.
 - Use dramatic font size variation and weight contrast to build rhythm and tension.
 - Employ strategic line breaks and emphasis shifts to guide the eye downward.
+`;
 
+    if (input.backgroundImageTheme && input.backgroundImageTheme !== 'none') {
+        imagePrompt += `- Background: Feature a dark, textured, and atmospheric background image with the theme of "${input.backgroundImageTheme}". The image should be subtle and not overpower the text. The overall mood must remain dark and high-contrast.`;
+    } else {
+        imagePrompt += `- Background: Solid deep black (#000000).`;
+    }
+
+    imagePrompt += `
 ⚪ Color Palette:
 - Primary Text Color: Pure white (#FFFFFF).
 - Highlight Accents (Optional): Use a slightly off-white gray (#AAAAAA) for the less important lines.
@@ -106,7 +114,7 @@ const generateBoldTypographicImageFlow = ai.defineFlow(
 - Add a very faint, almost invisible background text layer repeating a relevant phrase diagonally in a dark gray color like #111111.
 
 ✅ Final Composition Goals:
-- The text is the visual. There must be no icons, illustrations, or photos.
+- The text is the primary visual. If there is a background image, it must be subtle and supportive. There must be no icons or illustrations.
 - The design must feel authoritative, urgent, minimal, and modern.
 - It must be perfect for ads, marketing call-outs, or provocative business takes.
 

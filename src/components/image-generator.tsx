@@ -43,6 +43,7 @@ const formSchema = z.object({
   companyName: z.string().optional(),
   organizationName: z.string().optional(),
   colorTheme: z.string().optional(),
+  backgroundImageTheme: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -102,6 +103,7 @@ export function ImageGenerator() {
       companyName: "",
       organizationName: "",
       colorTheme: undefined,
+      backgroundImageTheme: undefined,
     }
   });
 
@@ -119,6 +121,7 @@ export function ImageGenerator() {
     form.setValue('companyName', '', { shouldValidate: true });
     form.setValue('organizationName', '', { shouldValidate: true });
     form.setValue('colorTheme', undefined, { shouldValidate: true });
+    form.setValue('backgroundImageTheme', undefined, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -206,6 +209,7 @@ export function ImageGenerator() {
       } else if (values.style === 'bold-typographic-impact') {
         const result = await generateBoldTypographicImage({
           postIdea: values.postIdea,
+          backgroundImageTheme: values.backgroundImageTheme,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -330,6 +334,8 @@ export function ImageGenerator() {
                           form.setValue('colorPalette', 'Deep blue to vibrant orange/yellow');
                           form.setValue('humanSubject', 'A confident businessperson smiling');
                           form.setValue('includeQRCode', false);
+                        } else if (value === 'bold-typographic-impact') {
+                          form.setValue('backgroundImageTheme', 'none');
                         } else if (value === 'optimistic-business') {
                           form.setValue('colorPalette', 'Bright blue sky to light turquoise');
                           form.setValue('humanSubject', 'A confident entrepreneur smiling');
@@ -676,6 +682,34 @@ export function ImageGenerator() {
                     )}
                   />
                 </>
+              )}
+
+              {selectedStyle === 'bold-typographic-impact' && (
+                <FormField
+                  control={form.control}
+                  name="backgroundImageTheme"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Background Texture</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a background texture" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="none">None (Solid Black)</SelectItem>
+                          <SelectItem value="Subtle Grunge Texture">Subtle Grunge</SelectItem>
+                          <SelectItem value="Abstract Light Streaks">Light Streaks</SelectItem>
+                          <SelectItem value="Glitchy Digital Noise">Digital Noise</SelectItem>
+                          <SelectItem value="Smoky Atmosphere">Smoky Atmosphere</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>Add a subtle background image instead of solid black.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
               
               {selectedStyle === 'optimistic-business' && (
