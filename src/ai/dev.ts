@@ -13,3 +13,4 @@ import '@/ai/flows/generate-bold-typographic-image.ts';
 import '@/ai/flows/generate-optimistic-business-image.ts';
 import '@/ai/flows/generate-retro-minimal-image.ts';
 import '@/ai/flows/generate-power-graphic-image.ts';
+import '@/ai/flows/generate-next-gen-arena-image.ts';

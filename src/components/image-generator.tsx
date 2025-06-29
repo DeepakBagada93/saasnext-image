@@ -27,6 +27,7 @@ import { generateBoldTypographicImage } from '@/ai/flows/generate-bold-typograph
 import { generateOptimisticBusinessImage } from '@/ai/flows/generate-optimistic-business-image';
 import { generateRetroMinimalImage } from '@/ai/flows/generate-retro-minimal-image';
 import { generatePowerGraphicImage } from '@/ai/flows/generate-power-graphic-image';
+import { generateNextGenArenaImage } from '@/ai/flows/generate-next-gen-arena-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -47,6 +48,8 @@ const formSchema = z.object({
   highlightAccents: z.boolean().optional(),
   backgroundText: z.boolean().optional(),
   borderFrame: z.boolean().optional(),
+  includeIcons: z.boolean().optional(),
+  includeParticles: z.boolean().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -80,6 +83,10 @@ const formSchema = z.object({
       if (!data.humanSubject) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A human subject is required for this style.", path: ["humanSubject"] });
       if (!data.organizationName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An organization name is required for this style.", path: ["organizationName"] });
       break;
+    case 'next-gen-arena':
+      if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An accent color is required for this style.", path: ["colorPalette"] });
+      if (!data.humanSubject) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A human subject is required for this style.", path: ["humanSubject"] });
+      break;
   }
 });
 
@@ -110,6 +117,8 @@ export function ImageGenerator() {
       highlightAccents: false,
       backgroundText: false,
       borderFrame: false,
+      includeIcons: false,
+      includeParticles: false,
     }
   });
 
@@ -131,6 +140,8 @@ export function ImageGenerator() {
     form.setValue('highlightAccents', false, { shouldValidate: true });
     form.setValue('backgroundText', false, { shouldValidate: true });
     form.setValue('borderFrame', false, { shouldValidate: true });
+    form.setValue('includeIcons', false, { shouldValidate: true });
+    form.setValue('includeParticles', false, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -263,6 +274,20 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'next-gen-arena') {
+        const result = await generateNextGenArenaImage({
+          postIdea: values.postIdea,
+          colorPalette: values.colorPalette!,
+          humanSubject: values.humanSubject!,
+          includeIcons: values.includeIcons,
+          includeParticles: values.includeParticles,
+          includeQRCode: values.includeQRCode,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -362,6 +387,12 @@ export function ImageGenerator() {
                           form.setValue('humanSubject', 'A woman raising her fist in protest');
                           form.setValue('organizationName', 'PROTESTWEB');
                           form.setValue('includeQRCode', false);
+                        } else if (value === 'next-gen-arena') {
+                          form.setValue('colorPalette', 'Vibrant Light Blue');
+                          form.setValue('humanSubject', 'Male gamer in his 20s, wearing a dark hoodie and headset');
+                          form.setValue('includeIcons', false);
+                          form.setValue('includeParticles', true);
+                          form.setValue('includeQRCode', false);
                         }
                       }}
                       defaultValue={field.value}
@@ -383,6 +414,7 @@ export function ImageGenerator() {
                         <SelectItem value="optimistic-business">Optimistic Business</SelectItem>
                         <SelectItem value="retro-minimal-impact">Retro Minimal Impact</SelectItem>
                         <SelectItem value="power-graphic">Power Graphic</SelectItem>
+                        <SelectItem value="next-gen-arena">Next-Gen Arena</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -944,6 +976,117 @@ export function ImageGenerator() {
                         </FormControl>
                         <FormDescription>Enter the movement/organization name.</FormDescription>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="includeQRCode"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Include QR Code</FormLabel>
+                          <FormDescription>
+                            Add a placeholder for a QR code link.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'next-gen-arena' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="colorPalette"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Accent Color</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an accent color" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Vibrant Light Blue">Vibrant Light Blue</SelectItem>
+                            <SelectItem value="Neon Green">Neon Green</SelectItem>
+                            <SelectItem value="Electric Purple">Electric Purple</SelectItem>
+                            <SelectItem value="Cyber Red">Cyber Red</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="humanSubject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Main Subject</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a subject" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Male gamer in his 20s, wearing a dark hoodie and headset">Male Gamer</SelectItem>
+                            <SelectItem value="Female gamer with headset, focused on screen">Female Gamer</SelectItem>
+                            <SelectItem value="E-sports team celebrating a victory">E-sports Team</SelectItem>
+                            <SelectItem value="Stylized digital avatar with glowing eyes">Digital Avatar</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="includeIcons"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Include HUD Icons</FormLabel>
+                          <FormDescription>
+                            Add game-specific UI overlays.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="includeParticles"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                        <div className="space-y-0.5">
+                          <FormLabel>Include Particle Effects</FormLabel>
+                          <FormDescription>
+                            Add subtle glowing particles for atmosphere.
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
