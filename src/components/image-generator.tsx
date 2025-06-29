@@ -389,7 +389,7 @@ export function ImageGenerator() {
                           form.setValue('includeQRCode', false);
                         } else if (value === 'next-gen-arena') {
                           form.setValue('colorPalette', 'Vibrant Light Blue');
-                          form.setValue('humanSubject', 'Male gamer in his 20s, wearing a dark hoodie and headset');
+                          form.setValue('humanSubject', 'A focused web developer with multiple monitors');
                           form.setValue('includeIcons', false);
                           form.setValue('includeParticles', true);
                           form.setValue('includeQRCode', false);
@@ -1040,10 +1040,8 @@ export function ImageGenerator() {
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Male gamer in his 20s, wearing a dark hoodie and headset">Male Gamer</SelectItem>
-                            <SelectItem value="Female gamer with headset, focused on screen">Female Gamer</SelectItem>
-                            <SelectItem value="E-sports team celebrating a victory">E-sports Team</SelectItem>
-                            <SelectItem value="Stylized digital avatar with glowing eyes">Digital Avatar</SelectItem>
+                            <SelectItem value="A focused web developer with multiple monitors">Web Developer</SelectItem>
+                            <SelectItem value="A confident social media expert analyzing data on a laptop">Social Media Expert</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

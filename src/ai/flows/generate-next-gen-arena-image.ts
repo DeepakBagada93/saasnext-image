@@ -13,7 +13,7 @@ import {z} from 'genkit';
 const GenerateNextGenArenaImageInputSchema = z.object({
   postIdea: z.string().describe('The idea for the social media post.'),
   colorPalette: z.string().describe('The selected accent color for the graphic.'),
-  humanSubject: z.string().describe('The human subject to feature in the image.'),
+  humanSubject: z.string().describe('The professional subject to feature in the image (e.g., web developer, social media expert).'),
   includeIcons: z.boolean().optional().describe('Whether to include game-specific icons or HUD overlays.'),
   includeParticles: z.boolean().optional().describe('Whether to include particle glow effects.'),
   includeQRCode: z.boolean().optional().describe('Whether to include a QR code area.'),
@@ -51,17 +51,17 @@ const textContentPrompt = ai.definePrompt({
   name: 'generateNextGenArenaTextContentPrompt',
   input: {schema: z.object({ postIdea: GenerateNextGenArenaImageInputSchema.shape.postIdea })},
   output: {schema: TextContentSchema},
-  prompt: `You are a marketing copywriter for an e-sports brand.
+  prompt: `You are a marketing copywriter for a modern tech brand.
 Given the following post idea, generate concise, high-energy text for a promotional graphic.
 
 Post Idea: "{{{postIdea}}}"
 
 Generate the following:
-1.  A short, bold, uppercase main callout (e.g., "LEVEL UP").
-2.  An exciting underline text (e.g., "THE COMPETITION AWAITS").
-3.  A plausible website URL (e.g., "www.nextgen-arena.gg").
-4.  A direct call-to-action (e.g., "JOIN THE FIGHT").
-5.  A cool brand or event name (e.g., "NEXUS GAMING").
+1.  A short, bold, uppercase main callout (e.g., "BUILD THE FUTURE").
+2.  An exciting underline text (e.g., "INNOVATION IN MOTION").
+3.  A plausible website URL (e.g., "www.dev-experts.io").
+4.  A direct call-to-action (e.g., "GET STARTED").
+5.  A cool brand or event name (e.g., "CODEVEX").
 
 Provide the output in the requested JSON format.`,
 });
@@ -79,7 +79,7 @@ const generateNextGenArenaImageFlow = ai.defineFlow(
       throw new Error('Failed to generate text content.');
     }
 
-    let imagePrompt = `Design a modern, high-energy 1:1 square social media graphic for an e-sports event. The composition should be bold, immersive, and high-contrast.
+    let imagePrompt = `Design a modern, high-energy 1:1 square social media graphic for a tech brand. The composition should be bold, immersive, and high-contrast.
 
 🧱 Layout Foundation:
 - Background: A solid dark grey or black background (#0E0E0E).
@@ -93,8 +93,9 @@ const generateNextGenArenaImageFlow = ai.defineFlow(
 
 🧑‍💻 Main Subject:
 - Feature this subject: "${input.humanSubject}".
-- The subject should be well-lit, with a focused or slightly smiling expression, immersed in gameplay.
-- Position the subject left-centered or slightly right-weighted, with only the edge of the monitor visible to enhance immersion.
+- For a "Web Developer": The subject should be at a clean, modern desk with multiple monitors displaying code, looking focused.
+- For a "Social Media Expert": The subject should be casually dressed, looking at a phone or laptop that shows graphs and social media icons, with a confident expression.
+- The subject should be well-lit and positioned left-centered or slightly right-weighted.
 - Apply a slight background blur behind the subject for focus depth.
 
 🔠 Text & Typographic Hierarchy (Use a bold, uppercase sans-serif font):
@@ -105,7 +106,7 @@ const generateNextGenArenaImageFlow = ai.defineFlow(
 - Top Left (Website):
   - Small, clean white text: "${textContent.website}"
 - Middle Right (CTA):
-  - Text: "${textContent.cta}" - bold white, slightly spaced. Include a gaming controller icon next to it.
+  - Text: "${textContent.cta}" - bold white, slightly spaced. Include a simple arrow icon (>) next to it.
 - Bottom Right (Branding):
   - Text: "${textContent.brandName}" - uppercase, clean sans-serif font, larger than the CTA but secondary to the main callout.
 `;
@@ -113,7 +114,7 @@ const generateNextGenArenaImageFlow = ai.defineFlow(
     if (input.includeIcons) {
       imagePrompt += `
 💡 Enhancements:
-- Add game-specific icons or light HUD overlays (e.g., a health bar, XP ring, or FPS counter) in the corners.`;
+- Add tech-related icons or light HUD overlays (e.g., code snippets, graph lines, or data points) in the corners.`;
     }
 
     if (input.includeParticles) {
@@ -123,14 +124,14 @@ const generateNextGenArenaImageFlow = ai.defineFlow(
 
     if (input.includeQRCode) {
       imagePrompt += `
-- Add a placeholder for a QR code with the text "Join Now" near the bottom left corner.`;
+- Add a placeholder for a QR code with the text "Learn More" near the bottom left corner.`;
     }
 
     imagePrompt += `
 
 ✅ Visual Mood:
 - High-tech, cyber-inspired, and ultra-modern.
-- Evokes excitement, focus, and a competitive edge.`;
+- Evokes excitement, focus, and a professional edge.`;
 
 
     const {media} = await ai.generate({
