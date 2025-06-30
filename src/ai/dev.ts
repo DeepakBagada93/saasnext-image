@@ -14,3 +14,4 @@ import '@/ai/flows/generate-optimistic-business-image.ts';
 import '@/ai/flows/generate-retro-minimal-image.ts';
 import '@/ai/flows/generate-power-graphic-image.ts';
 import '@/ai/flows/generate-next-gen-arena-image.ts';
+import '@/ai/flows/generate-multi-slide-carousel-image.ts';

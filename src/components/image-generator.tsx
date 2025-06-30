@@ -28,6 +28,7 @@ import { generateOptimisticBusinessImage } from '@/ai/flows/generate-optimistic-
 import { generateRetroMinimalImage } from '@/ai/flows/generate-retro-minimal-image';
 import { generatePowerGraphicImage } from '@/ai/flows/generate-power-graphic-image';
 import { generateNextGenArenaImage } from '@/ai/flows/generate-next-gen-arena-image';
+import { generateMultiSlideCarouselImage } from '@/ai/flows/generate-multi-slide-carousel-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -50,6 +51,7 @@ const formSchema = z.object({
   borderFrame: z.boolean().optional(),
   includeIcons: z.boolean().optional(),
   includeParticles: z.boolean().optional(),
+  niche: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -87,6 +89,10 @@ const formSchema = z.object({
       if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An accent color is required for this style.", path: ["colorPalette"] });
       if (!data.humanSubject) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A human subject is required for this style.", path: ["humanSubject"] });
       break;
+    case 'multi-slide-carousel':
+      if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
+      if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An accent color is required for this style.", path: ["colorPalette"] });
+      break;
   }
 });
 
@@ -119,6 +125,7 @@ export function ImageGenerator() {
       borderFrame: false,
       includeIcons: false,
       includeParticles: false,
+      niche: undefined,
     }
   });
 
@@ -142,6 +149,7 @@ export function ImageGenerator() {
     form.setValue('borderFrame', false, { shouldValidate: true });
     form.setValue('includeIcons', false, { shouldValidate: true });
     form.setValue('includeParticles', false, { shouldValidate: true });
+    form.setValue('niche', undefined, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -288,6 +296,17 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'multi-slide-carousel') {
+        const result = await generateMultiSlideCarouselImage({
+          postIdea: values.postIdea,
+          niche: values.niche!,
+          accentColor: values.colorPalette!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -393,6 +412,9 @@ export function ImageGenerator() {
                           form.setValue('includeIcons', false);
                           form.setValue('includeParticles', true);
                           form.setValue('includeQRCode', false);
+                        } else if (value === 'multi-slide-carousel') {
+                          form.setValue('niche', 'Web Development');
+                          form.setValue('colorPalette', 'Electric blue to aqua');
                         }
                       }}
                       defaultValue={field.value}
@@ -415,6 +437,7 @@ export function ImageGenerator() {
                         <SelectItem value="retro-minimal-impact">Retro Minimal Impact</SelectItem>
                         <SelectItem value="power-graphic">Power Graphic</SelectItem>
                         <SelectItem value="next-gen-arena">Next-Gen Arena</SelectItem>
+                        <SelectItem value="multi-slide-carousel">Multi-slide Carousel</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1105,6 +1128,57 @@ export function ImageGenerator() {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'multi-slide-carousel' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="niche"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Niche</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a niche" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Web Development">Web Development</SelectItem>
+                            <SelectItem value="Lead Generation">Lead Generation</SelectItem>
+                            <SelectItem value="AI Solutions">AI Solutions</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Select the industry focus for the visual.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="colorPalette"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Accent Color</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an accent color" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Electric blue to aqua">Blue to Aqua</SelectItem>
+                            <SelectItem value="Magenta to orange">Magenta to Orange</SelectItem>
+                            <SelectItem value="Neon purple to mint">Purple to Mint</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Choose the color for the transformation effect.</FormDescription>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
