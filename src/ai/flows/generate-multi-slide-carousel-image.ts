@@ -89,7 +89,7 @@ const generateMultiSlideCarouselImageFlow = ai.defineFlow(
             break;
     }
 
-    const imagePrompt = `Design Slide 1 of a bold, eclectic multi-slide carousel for a B2B tech brand. The style is eclectic maximalism with surrealist undertones, high contrast, and layered 3D depth.
+    const imagePrompt = `Design Slide 1 of a bold, eclectic multi-slide carousel for a B2B tech brand. The image must be a square 1:1 aspect ratio. The style is eclectic maximalism with surrealist undertones, high contrast, and layered 3D depth.
 
 🔀 Create a dramatic split-screen composition showing a transformation from left to right.
 
