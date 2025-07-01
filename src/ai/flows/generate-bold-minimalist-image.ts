@@ -32,7 +32,7 @@ const TextContentSchema = z.object({
   supportingText: z
     .string()
     .describe(
-      'A brief, engaging supporting text, like lorem ipsum, to complement the headline.'
+      'A brief, one-sentence supporting text to complement the headline.'
     ),
   ctaText: z
     .string()
@@ -72,7 +72,7 @@ Post Idea: "{{{postIdea}}}"
 
 Generate the following:
 1.  A short, catchy, all-caps headline (e.g., "GROW YOUR BUSINESS").
-2.  A brief, engaging supporting text. It should be one or two sentences long, like "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+2.  A brief, one-sentence supporting text (e.g., "Lorem ipsum dolor sit amet, consectetur adipiscing elit.").
 3.  A short, compelling call-to-action (CTA) for a button, in all caps (e.g., "GET MORE LEADS").
 
 Provide the output in the requested JSON format.`,

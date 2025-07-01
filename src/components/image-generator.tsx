@@ -53,6 +53,7 @@ const formSchema = z.object({
   includeIcons: z.boolean().optional(),
   includeParticles: z.boolean().optional(),
   niche: z.string().optional(),
+  website: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -98,6 +99,8 @@ const formSchema = z.object({
       if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
       if (!data.colorTheme) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A color theme is required for this style.", path: ["colorTheme"] });
       if (!data.humanSubject) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A human subject is required for this style.", path: ["humanSubject"] });
+      if (!data.companyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A company name is required.", path: ["companyName"] });
+      if (!data.website) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A website is required.", path: ["website"] });
       break;
   }
 });
@@ -132,6 +135,7 @@ export function ImageGenerator() {
       includeIcons: false,
       includeParticles: false,
       niche: undefined,
+      website: "",
     }
   });
 
@@ -156,6 +160,7 @@ export function ImageGenerator() {
     form.setValue('includeIcons', false, { shouldValidate: true });
     form.setValue('includeParticles', false, { shouldValidate: true });
     form.setValue('niche', undefined, { shouldValidate: true });
+    form.setValue('website', '', { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -319,6 +324,8 @@ export function ImageGenerator() {
           niche: values.niche!,
           colorTheme: values.colorTheme!,
           humanSubject: values.humanSubject!,
+          companyName: values.companyName!,
+          website: values.website!,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -437,6 +444,8 @@ export function ImageGenerator() {
                           form.setValue('niche', 'Web Development');
                           form.setValue('colorTheme', 'Blue & Orange Tech');
                           form.setValue('humanSubject', 'A smiling web developer at a clean desk');
+                          form.setValue('companyName', 'JOYFUL CAPTURES');
+                          form.setValue('website', 'www.yoursite.com');
                         }
                       }}
                       value={field.value}
@@ -1272,6 +1281,38 @@ export function ImageGenerator() {
                             <SelectItem value="An AI engineer interacting with a futuristic interface">AI Engineer</SelectItem>
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Joyful Captures"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="website"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Website URL</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., www.yoursite.com"
+                            {...field}
+                          />
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}

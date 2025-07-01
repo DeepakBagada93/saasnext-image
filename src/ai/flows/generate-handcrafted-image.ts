@@ -27,7 +27,7 @@ const TextContentSchema = z.object({
   supportingText: z
     .string()
     .describe(
-      'A brief, engaging supporting text that feels personal and authentic.'
+      'A short, personal, and soulful supporting text.'
     ),
   ctaText: z
     .string()
@@ -65,7 +65,7 @@ Post Idea: "{{{postIdea}}}"
 
 Generate the following:
 1.  An all-caps headline that feels authentic and intentional (e.g., "CRAFTED WITH INTENTION").
-2.  A supporting text that is personal and soulful (e.g., "Every brand has a soul — we bring it to life with story, shape, and sketch.").
+2.  A short, personal, and soulful supporting text (e.g., "Every brand has a soul — we bring it to life with story, shape, and sketch.").
 3.  A call-to-action that sounds like a personal invitation (e.g., "LET’S START SKETCHING").
 
 Provide the output in the requested JSON format.`,

@@ -25,10 +25,10 @@ const TextContentSchema = z.object({
     .string()
     .describe('An expressive, inspiring headline for the social media post.'),
   supportingText: z
-    .string()
 
+    .string()
     .describe(
-      'A charming supporting text that tells a story, complementing the headline.'
+      'A short, charming supporting text that tells a story.'
     ),
   ctaText: z
     .string()
@@ -66,7 +66,7 @@ Post Idea: "{{{postIdea}}}"
 
 Generate the following:
 1.  An expressive, inspiring headline (e.g., "IDEAS DESERVE TO BLOOM").
-2.  A charming supporting text that tells a story (e.g., "We craft stories, not just visuals. Your brand, illustrated with meaning.").
+2.  A short, charming supporting text that tells a story (e.g., "We craft stories, not just visuals.").
 3.  A friendly and inviting call-to-action (CTA) (e.g., "LET'S CREATE TOGETHER").
 
 Provide the output in the requested JSON format.`,

@@ -15,6 +15,8 @@ const GenerateJoyfulGridImageInputSchema = z.object({
   niche: z.string().describe('The target niche (e.g., Web Development).'),
   colorTheme: z.string().describe('The selected color theme.'),
   humanSubject: z.string().describe('The type of professional human subject to include.'),
+  companyName: z.string().describe('The company name to display.'),
+  website: z.string().describe('The website URL to display.'),
 });
 export type GenerateJoyfulGridImageInput = z.infer<
   typeof GenerateJoyfulGridImageInputSchema
@@ -23,9 +25,7 @@ export type GenerateJoyfulGridImageInput = z.infer<
 const TextContentSchema = z.object({
   headline: z.string().describe('A bold, energetic headline.'),
   tagline: z.string().describe('A smaller, supporting tagline.'),
-  bodyText: z.string().describe('A short paragraph of body text.'),
-  companyName: z.string().describe('A creative company name.'),
-  website: z.string().describe('A plausible website URL.'),
+  bodyText: z.string().describe('A very short, concise body text.'),
 });
 
 const GenerateJoyfulGridImageOutputSchema = z.object({
@@ -58,9 +58,7 @@ Niche: "{{{niche}}}"
 Generate the following:
 1.  A bold, energetic headline (e.g., "CAPTURE YOUR BEST MOMENT").
 2.  A smaller, supporting tagline (e.g., "Lorem ipsum dolor").
-3.  A short paragraph of body text (e.g., "Lorem ipsum dolor sit amet, consectetur adipiscing elit.").
-4.  A creative company name (e.g., "JOYFUL CAPTURES").
-5.  A plausible website URL (e.g., "www.yoursite.com").
+3.  A very short, concise body text (e.g., "Lorem ipsum dolor sit amet.").
 
 Provide the output in the requested JSON format.`,
 });
@@ -122,14 +120,14 @@ const generateJoyfulGridImageFlow = ai.defineFlow(
 - ${nicheSpecifics}
 
 ✍️ Text & Branding (Right Side Content Block):
-- Top Right (Branding): Display the company name "${textContent.companyName}" in white text inside a light grey circular badge, placed over the top-right quadrant's background. Use a clean, circular sans-serif font like Nunito or Poppins.
+- Top Right (Branding): Display the company name "${input.companyName}" in a bold, clean, white sans-serif font like Nunito or Poppins, placed directly over the top-right quadrant's background.
 - Main Hook (Hero Text): The headline is "${textContent.headline}". Use a bold, all-caps sans-serif font (like Montserrat Extra Bold) and place it center-right over the top-right quadrant.
 - Secondary Tagline: Below the headline, add the text "${textContent.tagline}" in a smaller, light-weight white sans-serif font.
 - Supporting Body Copy (Lower Orange Area): Add the body text: "${textContent.bodyText}". Use a small white sans-serif font, aligned left, over the bottom half's background color.
 
 🌐 Footer Bar (Bottom White Stripe):
 - Add a white horizontal bar across the very bottom of the image.
-- Left-aligned website text in black: "${textContent.website}".
+- Left-aligned website text in black: "${input.website}".
 - Right-aligned flat black social media icons: Facebook, Instagram, Twitter, WhatsApp.
 `;
 

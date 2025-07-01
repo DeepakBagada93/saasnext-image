@@ -31,7 +31,7 @@ const TextContentSchema = z.object({
   supportingText: z
     .string()
     .describe(
-      'A brief, engaging supporting text to complement the headline.'
+      'A short, authentic supporting text.'
     ),
   ctaText: z
     .string()
@@ -71,7 +71,7 @@ Post Idea: "{{{postIdea}}}"
 
 Generate the following:
 1.  A bold, uppercase headline (e.g., "REAL STRATEGY. REAL GROWTH.").
-2.  A supporting text that is authentic and grounded (e.g., "We craft brands that feel as real as your goals.").
+2.  A short, authentic supporting text (e.g., "We craft brands that feel as real as your goals.").
 3.  A call-to-action for a button, in all caps (e.g., "LET'S BUILD TOGETHER").
 
 Provide the output in the requested JSON format.`,

@@ -24,7 +24,7 @@ export type GeneratePowerGraphicImageInput = z.infer<
 const TextContentSchema = z.object({
   headline: z.string().describe('A bold, uppercase headline for the protest graphic.'),
   secondaryMessage: z.string().describe('A smaller, secondary message to support the headline.'),
-  subtext: z.string().describe('A brief, generic subtext for additional context, like a lorem ipsum placeholder.'),
+  subtext: z.string().describe('A very brief, generic subtext for additional context.'),
 });
 
 const GeneratePowerGraphicImageOutputSchema = z.object({
@@ -56,7 +56,7 @@ Post Idea: "{{{postIdea}}}"
 Generate the following:
 1.  A bold, uppercase headline (e.g., "TIME TO RESIST").
 2.  A smaller secondary message (e.g., "Stay tuned for calls to action.").
-3.  A generic subtext placeholder about one sentence long (e.g., "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip.").
+3.  A very brief, generic subtext for additional context (e.g., "Ut enim ad minim veniam.").
 
 Provide the output in the requested JSON format.`,
 });
