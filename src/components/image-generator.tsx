@@ -417,7 +417,7 @@ export function ImageGenerator() {
                           form.setValue('colorPalette', 'Electric blue to aqua');
                         }
                       }}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -453,7 +453,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Color Palette</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a color palette" />
@@ -475,7 +475,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Font Style</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a font style" />
@@ -519,7 +519,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Color Palette</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a color palette" />
@@ -563,7 +563,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Color Palette</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a color palette" />
@@ -606,7 +606,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Scene Example</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a scene example" />
@@ -635,7 +635,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Illustrative Motifs</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a motif" />
@@ -664,7 +664,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Emotive Theme</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a theme" />
@@ -693,7 +693,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Gradient Palette</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a gradient palette" />
@@ -715,7 +715,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Human Subject</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a human subject" />
@@ -762,7 +762,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Background Texture</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a background texture" />
@@ -852,7 +852,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Gradient Palette</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a gradient palette" />
@@ -875,7 +875,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Human Subject</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a human subject" />
@@ -902,7 +902,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Background Color</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a color" />
@@ -947,7 +947,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Color Theme</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a color theme" />
@@ -969,7 +969,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Human Subject</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a human subject" />
@@ -1033,7 +1033,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Accent Color</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select an accent color" />
@@ -1056,7 +1056,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Main Subject</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a subject" />
@@ -1142,7 +1142,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Niche</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select a niche" />
@@ -1165,7 +1165,7 @@ export function ImageGenerator() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Accent Color</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select an accent color" />
