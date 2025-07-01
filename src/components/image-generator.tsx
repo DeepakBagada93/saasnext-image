@@ -29,6 +29,7 @@ import { generateRetroMinimalImage } from '@/ai/flows/generate-retro-minimal-ima
 import { generatePowerGraphicImage } from '@/ai/flows/generate-power-graphic-image';
 import { generateNextGenArenaImage } from '@/ai/flows/generate-next-gen-arena-image';
 import { generateMultiSlideCarouselImage } from '@/ai/flows/generate-multi-slide-carousel-image';
+import { generateJoyfulGridImage } from '@/ai/flows/generate-joyful-grid-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -92,6 +93,11 @@ const formSchema = z.object({
     case 'multi-slide-carousel':
       if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
       if (!data.colorPalette) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An accent color is required for this style.", path: ["colorPalette"] });
+      break;
+    case 'joyful-grid':
+      if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
+      if (!data.colorTheme) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A color theme is required for this style.", path: ["colorTheme"] });
+      if (!data.humanSubject) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A human subject is required for this style.", path: ["humanSubject"] });
       break;
   }
 });
@@ -307,6 +313,18 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'joyful-grid') {
+        const result = await generateJoyfulGridImage({
+          postIdea: values.postIdea,
+          niche: values.niche!,
+          colorTheme: values.colorTheme!,
+          humanSubject: values.humanSubject!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -415,6 +433,10 @@ export function ImageGenerator() {
                         } else if (value === 'multi-slide-carousel') {
                           form.setValue('niche', 'Web Development');
                           form.setValue('colorPalette', 'Electric blue to aqua');
+                        } else if (value === 'joyful-grid') {
+                          form.setValue('niche', 'Web Development');
+                          form.setValue('colorTheme', 'Blue & Orange Tech');
+                          form.setValue('humanSubject', 'A smiling web developer at a clean desk');
                         }
                       }}
                       value={field.value}
@@ -438,6 +460,7 @@ export function ImageGenerator() {
                         <SelectItem value="power-graphic">Power Graphic</SelectItem>
                         <SelectItem value="next-gen-arena">Next-Gen Arena</SelectItem>
                         <SelectItem value="multi-slide-carousel">Multi-slide Carousel</SelectItem>
+                        <SelectItem value="joyful-grid">Joyful Grid</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1184,6 +1207,78 @@ export function ImageGenerator() {
                   />
                 </>
               )}
+
+              {selectedStyle === 'joyful-grid' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="niche"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Niche</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a niche" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Web Development">Web Development</SelectItem>
+                            <SelectItem value="Lead Generation">Lead Generation</SelectItem>
+                            <SelectItem value="AI Solutions">AI Solutions</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="colorTheme"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Color Theme</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a color theme" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Blue & Orange Tech">Blue & Orange Tech</SelectItem>
+                            <SelectItem value="Green & Yellow Growth">Green & Yellow Growth</SelectItem>
+                            <SelectItem value="Purple & Teal AI">Purple & Teal AI</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="humanSubject"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Human Subject</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a human subject" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A smiling web developer at a clean desk">Web Developer</SelectItem>
+                            <SelectItem value="A marketing professional analyzing a dashboard">Marketing Professional</SelectItem>
+                            <SelectItem value="An AI engineer interacting with a futuristic interface">AI Engineer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
 
             </CardContent>
             <CardFooter>
