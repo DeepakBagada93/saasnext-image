@@ -32,10 +32,7 @@ export type GenerateModularWorkflowImageInput = z.infer<
 const TextContentSchema = z.object({
   headline: z
     .string()
-    .describe('A clear, concise headline for the workflow graphic.'),
-  subheadline: z
-    .string()
-    .describe('A supporting subheadline that explains the process.'),
+    .describe('A clear, powerful, and concise headline for the workflow graphic.'),
 });
 
 const GenerateModularWorkflowImageOutputSchema = z.object({
@@ -64,15 +61,19 @@ const textContentPrompt = ai.definePrompt({
     }),
   },
   output: {schema: TextContentSchema},
-  prompt: `You are a marketing strategist for a B2B tech firm.
-Based on the following post idea and niche, generate a compelling headline and subheadline for a workflow diagram.
+  prompt: `You are a B2B marketing expert who creates high-impact, minimalist copy.
+Based on the following post idea and niche, generate one clear, powerful, and concise headline for a workflow diagram graphic.
+
+The headline should be a strong statement about a process, result, or transformation. It should be short and punchy.
 
 Post Idea: "{{{postIdea}}}"
 Niche: "{{{niche}}}"
 
-Generate the following:
-1.  A short, powerful headline summarizing the workflow (e.g., "From Idea to Impact").
-2.  A concise subheadline explaining the benefit of the process (e.g., "Our framework for building winning products.").
+Examples of good headlines:
+- "Your Process, Perfected."
+- "From Chaos to Clarity."
+- "Build. Launch. Scale."
+- "The Blueprint for Brilliance."
 
 Provide the output in the requested JSON format.`,
 });
@@ -111,11 +112,17 @@ const generateModularWorkflowImageFlow = ai.defineFlow(
 - Highlight Color: Neon green (#00FFB2).`;
     }
 
-    const imagePrompt = `Design a modern, minimalist workflow graphic for a social media post (1:1 square). The style should be clean, abstract, and professional, suitable for a tech brand in the "${input.niche}" space.
+    const imagePrompt = `Design a modern, minimalist workflow graphic for a social media post (1:1 square). The style should be clean, abstract, and professional, suitable for a tech brand in the "${input.niche}" space. The design must NOT include any human figures or illustrations.
 
 ${themeInstructions}
 
-🧩 Diagram Layout:
+✍️ Headline & Hook (Top Section):
+- Position a single, powerful headline at the top of the image: "${textContent.headline}"
+- Use a bold, modern sans-serif font. The main keywords can be highlighted with the highlight color.
+- The text should be the main focal point besides the diagram.
+
+🧩 Diagram (Main Content):
+- Center the diagram in the remaining space below the headline.
 - Arrange three geometric shapes (circles or squares) in a ${input.layout} layout.
 - Connect them with thin, elegant lines or arrows in the connector color.
 
@@ -124,19 +131,10 @@ ${themeInstructions}
 - Step 3 Shape: Contains a minimalist icon for Launch: ${input.launchIcon}. Label it "Launch".
 - The labels should be clean, small text below each icon.
 
-👨‍💻 Developer Element:
-- Position a cleanly illustrated, confident developer sitting with a laptop in the bottom-right corner.
-- The laptop screen can show a UI mockup or lines of code.
-- The style should be minimalist and blend with the overall theme.
-
-✍️ Headline & Hook:
-- Headline: "${textContent.headline}". Use a bold, modern sans-serif font. The main keywords can be highlighted with the highlight color.
-- Subheadline: "${textContent.subheadline}". Place this in a smaller, regular-weight font below the headline.
-- Position the text block at the top-left to balance the developer element.
-
 ✅ Overall Feel:
-- The design must be clean, sophisticated, and easy to understand.
-- It should communicate a clear, efficient process for the specified niche: "${input.niche}".`;
+- The design must be extremely clean, minimal, sophisticated, and easy to understand.
+- It should communicate a clear, efficient process for the specified niche: "${input.niche}".
+- The final image is composed of only text and the three-step abstract diagram.`;
 
     const {media} = await ai.generate({
       model: 'googleai/gemini-2.0-flash-preview-image-generation',
