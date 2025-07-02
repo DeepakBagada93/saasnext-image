@@ -30,6 +30,7 @@ import { generatePowerGraphicImage } from '@/ai/flows/generate-power-graphic-ima
 import { generateNextGenArenaImage } from '@/ai/flows/generate-next-gen-arena-image';
 import { generateMultiSlideCarouselImage } from '@/ai/flows/generate-multi-slide-carousel-image';
 import { generateJoyfulGridImage } from '@/ai/flows/generate-joyful-grid-image';
+import { generateModularWorkflowImage } from '@/ai/flows/generate-modular-workflow-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -54,6 +55,8 @@ const formSchema = z.object({
   includeParticles: z.boolean().optional(),
   niche: z.string().optional(),
   website: z.string().optional(),
+  theme: z.string().optional(),
+  layout: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -102,6 +105,11 @@ const formSchema = z.object({
       if (!data.companyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A company name is required.", path: ["companyName"] });
       if (!data.website) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A website is required.", path: ["website"] });
       break;
+    case 'modular-workflow':
+      if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
+      if (!data.theme) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A theme is required for this style.", path: ["theme"] });
+      if (!data.layout) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A layout is required for this style.", path: ["layout"] });
+      break;
   }
 });
 
@@ -136,6 +144,8 @@ export function ImageGenerator() {
       includeParticles: false,
       niche: undefined,
       website: "",
+      theme: undefined,
+      layout: undefined,
     }
   });
 
@@ -161,6 +171,8 @@ export function ImageGenerator() {
     form.setValue('includeParticles', false, { shouldValidate: true });
     form.setValue('niche', undefined, { shouldValidate: true });
     form.setValue('website', '', { shouldValidate: true });
+    form.setValue('theme', undefined, { shouldValidate: true });
+    form.setValue('layout', undefined, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -332,6 +344,18 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'modular-workflow') {
+        const result = await generateModularWorkflowImage({
+          postIdea: values.postIdea,
+          niche: values.niche!,
+          theme: values.theme!,
+          layout: values.layout!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -446,6 +470,10 @@ export function ImageGenerator() {
                           form.setValue('humanSubject', 'A smiling web developer at a clean desk');
                           form.setValue('companyName', 'JOYFUL CAPTURES');
                           form.setValue('website', 'www.yoursite.com');
+                        } else if (value === 'modular-workflow') {
+                          form.setValue('niche', 'Web Development');
+                          form.setValue('theme', 'Light Mode');
+                          form.setValue('layout', 'Horizontal');
                         }
                       }}
                       value={field.value}
@@ -470,6 +498,7 @@ export function ImageGenerator() {
                         <SelectItem value="next-gen-arena">Next-Gen Arena</SelectItem>
                         <SelectItem value="multi-slide-carousel">Multi-slide Carousel</SelectItem>
                         <SelectItem value="joyful-grid">Joyful Grid</SelectItem>
+                        <SelectItem value="modular-workflow">Modular Developer Workflow</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1313,6 +1342,78 @@ export function ImageGenerator() {
                             {...field}
                           />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+              
+              {selectedStyle === 'modular-workflow' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="niche"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Niche</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a niche" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Web Development">Web Development</SelectItem>
+                            <SelectItem value="Lead Generation">Lead Generation</SelectItem>
+                            <SelectItem value="AI Solutions">AI Solutions</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Select the industry focus for the visual.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="theme"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Theme</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a theme" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Light Mode">Light Mode</SelectItem>
+                            <SelectItem value="Dark Gradient">Dark Gradient</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Choose between a light or dark theme.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="layout"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Layout</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a layout" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Horizontal">Horizontal</SelectItem>
+                            <SelectItem value="Vertical">Vertical</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Choose the orientation of the workflow.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
