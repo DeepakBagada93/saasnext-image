@@ -57,6 +57,9 @@ const formSchema = z.object({
   website: z.string().optional(),
   theme: z.string().optional(),
   layout: z.string().optional(),
+  strategyIcon: z.string().optional(),
+  ideationIcon: z.string().optional(),
+  launchIcon: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -109,6 +112,9 @@ const formSchema = z.object({
       if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
       if (!data.theme) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A theme is required for this style.", path: ["theme"] });
       if (!data.layout) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A layout is required for this style.", path: ["layout"] });
+      if (!data.strategyIcon) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A strategy icon is required.", path: ["strategyIcon"] });
+      if (!data.ideationIcon) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An ideation icon is required.", path: ["ideationIcon"] });
+      if (!data.launchIcon) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A launch icon is required.", path: ["launchIcon"] });
       break;
   }
 });
@@ -146,6 +152,9 @@ export function ImageGenerator() {
       website: "",
       theme: undefined,
       layout: undefined,
+      strategyIcon: undefined,
+      ideationIcon: undefined,
+      launchIcon: undefined,
     }
   });
 
@@ -173,6 +182,9 @@ export function ImageGenerator() {
     form.setValue('website', '', { shouldValidate: true });
     form.setValue('theme', undefined, { shouldValidate: true });
     form.setValue('layout', undefined, { shouldValidate: true });
+    form.setValue('strategyIcon', undefined, { shouldValidate: true });
+    form.setValue('ideationIcon', undefined, { shouldValidate: true });
+    form.setValue('launchIcon', undefined, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -350,6 +362,9 @@ export function ImageGenerator() {
           niche: values.niche!,
           theme: values.theme!,
           layout: values.layout!,
+          strategyIcon: values.strategyIcon!,
+          ideationIcon: values.ideationIcon!,
+          launchIcon: values.launchIcon!,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -474,6 +489,9 @@ export function ImageGenerator() {
                           form.setValue('niche', 'Web Development');
                           form.setValue('theme', 'Light Mode');
                           form.setValue('layout', 'Horizontal');
+                          form.setValue('strategyIcon', 'A gear icon');
+                          form.setValue('ideationIcon', 'A lightbulb icon');
+                          form.setValue('launchIcon', 'A rocket icon');
                         }
                       }}
                       value={field.value}
@@ -1414,6 +1432,84 @@ export function ImageGenerator() {
                           </SelectContent>
                         </Select>
                         <FormDescription>Choose the orientation of the workflow.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="strategyIcon"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Strategy Icon</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an icon" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A gear icon">Gear</SelectItem>
+                            <SelectItem value="A flowchart icon">Flowchart</SelectItem>
+                            <SelectItem value="A user persona icon">User Persona</SelectItem>
+                            <SelectItem value="A target icon">Target</SelectItem>
+                            <SelectItem value="A data cluster icon">Data Cluster</SelectItem>
+                            <SelectItem value="A neural network icon">Neural Network</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Icon for the first step.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="ideationIcon"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Ideation Icon</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an icon" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A lightbulb icon">Lightbulb</SelectItem>
+                            <SelectItem value="A pen nib icon">Pen Nib</SelectItem>
+                            <SelectItem value="A magnet icon">Magnet</SelectItem>
+                            <SelectItem value="A funnel icon">Funnel</SelectItem>
+                            <SelectItem value="A glowing brain icon">Glowing Brain</SelectItem>
+                            <SelectItem value="An algorithm icon">Algorithm</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Icon for the second step.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="launchIcon"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Launch Icon</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select an icon" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="A rocket icon">Rocket</SelectItem>
+                            <SelectItem value="An upward arrow icon">Upward Arrow</SelectItem>
+                            <SelectItem value="A graph with an upward trend icon">Upward Trend Graph</SelectItem>
+                            <SelectItem value="A robot or automation icon">Robot / Automation</SelectItem>
+                            <SelectItem value="A flag icon">Flag</SelectItem>
+                            <SelectItem value="A play button icon">Play Button</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Icon for the third step.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}

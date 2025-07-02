@@ -12,17 +12,30 @@ import {z} from 'zod';
 
 const GenerateModularWorkflowImageInputSchema = z.object({
   postIdea: z.string().describe('The idea for the social media post.'),
-  niche: z.string().describe('The target niche (Web Development, Lead Generation, or AI Solutions).'),
+  niche: z
+    .string()
+    .describe(
+      'The target niche (Web Development, Lead Generation, or AI Solutions).'
+    ),
   theme: z.string().describe('The visual theme (Light Mode or Dark Gradient).'),
-  layout: z.string().describe('The layout of the workflow diagram (Horizontal or Vertical).'),
+  layout: z
+    .string()
+    .describe('The layout of the workflow diagram (Horizontal or Vertical).'),
+  strategyIcon: z.string().describe('The icon for the "Strategy" step.'),
+  ideationIcon: z.string().describe('The icon for the "Ideation" step.'),
+  launchIcon: z.string().describe('The icon for the "Launch" step.'),
 });
 export type GenerateModularWorkflowImageInput = z.infer<
   typeof GenerateModularWorkflowImageInputSchema
 >;
 
 const TextContentSchema = z.object({
-  headline: z.string().describe('A clear, concise headline for the workflow graphic.'),
-  subheadline: z.string().describe('A supporting subheadline that explains the process.'),
+  headline: z
+    .string()
+    .describe('A clear, concise headline for the workflow graphic.'),
+  subheadline: z
+    .string()
+    .describe('A supporting subheadline that explains the process.'),
 });
 
 const GenerateModularWorkflowImageOutputSchema = z.object({
@@ -44,7 +57,12 @@ export async function generateModularWorkflowImage(
 
 const textContentPrompt = ai.definePrompt({
   name: 'generateModularWorkflowTextContentPrompt',
-  input: {schema: z.object({ postIdea: GenerateModularWorkflowImageInputSchema.shape.postIdea, niche: GenerateModularWorkflowImageInputSchema.shape.niche })},
+  input: {
+    schema: z.object({
+      postIdea: GenerateModularWorkflowImageInputSchema.shape.postIdea,
+      niche: GenerateModularWorkflowImageInputSchema.shape.niche,
+    }),
+  },
   output: {schema: TextContentSchema},
   prompt: `You are a marketing strategist for a B2B tech firm.
 Based on the following post idea and niche, generate a compelling headline and subheadline for a workflow diagram.
@@ -66,7 +84,10 @@ const generateModularWorkflowImageFlow = ai.defineFlow(
     outputSchema: GenerateModularWorkflowImageOutputSchema,
   },
   async input => {
-    const {output: textContent} = await textContentPrompt({ postIdea: input.postIdea, niche: input.niche });
+    const {output: textContent} = await textContentPrompt({
+      postIdea: input.postIdea,
+      niche: input.niche,
+    });
 
     if (!textContent) {
       throw new Error('Failed to generate text content.');
@@ -74,40 +95,21 @@ const generateModularWorkflowImageFlow = ai.defineFlow(
 
     let themeInstructions = '';
     if (input.theme === 'Light Mode') {
-        themeInstructions = `💡 Light Mode Theme:
+      themeInstructions = `💡 Light Mode Theme:
 - Background: Pure white (#FFFFFF).
 - Shapes: Cool greys (#C4C4C4).
 - Connectors: Muted green (#00B894).
 - Typography: Charcoal black (#333333).
 - Highlight Color: Muted green (#00B894).`;
-    } else { // Dark Gradient
-        themeInstructions = `🌌 Dark Gradient Theme:
+    } else {
+      // Dark Gradient
+      themeInstructions = `🌌 Dark Gradient Theme:
 - Background: A rich dark gradient from #121212 to #1E1E2F.
 - Shapes: Semi-transparent grey (#444444) with a subtle glow.
 - Connectors: Neon green (#00FFB2) or cyan (#00FFFF), with a glowing effect.
 - Typography: White (#FFFFFF).
 - Highlight Color: Neon green (#00FFB2).`;
     }
-
-    let nicheIcons = {
-        strategy: 'a gear or flowchart icon',
-        ideation: 'a lightbulb or pen nib icon',
-        launch: 'a rocket or upward arrow icon',
-    };
-    if (input.niche === 'Lead Generation') {
-        nicheIcons = {
-            strategy: 'a user persona or target icon',
-            ideation: 'a magnet or funnel icon',
-            launch: 'a graph with an upward trend icon',
-        };
-    } else if (input.niche === 'AI Solutions') {
-        nicheIcons = {
-            strategy: 'a data cluster or neural network icon',
-            ideation: 'a glowing brain or algorithm icon',
-            launch: 'a robot or automation icon',
-        };
-    }
-
 
     const imagePrompt = `Design a modern, minimalist workflow graphic for a social media post (1:1 square). The style should be clean, abstract, and professional, suitable for a tech brand in the "${input.niche}" space.
 
@@ -117,9 +119,9 @@ ${themeInstructions}
 - Arrange three geometric shapes (circles or squares) in a ${input.layout} layout.
 - Connect them with thin, elegant lines or arrows in the connector color.
 
-- Step 1 Shape: Contains a minimalist icon for Strategy: ${nicheIcons.strategy}. Label it "Strategy".
-- Step 2 Shape: Contains a minimalist icon for Ideation: ${nicheIcons.ideation}. Label it "Ideation".
-- Step 3 Shape: Contains a minimalist icon for Launch: ${nicheIcons.launch}. Label it "Launch".
+- Step 1 Shape: Contains a minimalist icon for Strategy: ${input.strategyIcon}. Label it "Strategy".
+- Step 2 Shape: Contains a minimalist icon for Ideation: ${input.ideationIcon}. Label it "Ideation".
+- Step 3 Shape: Contains a minimalist icon for Launch: ${input.launchIcon}. Label it "Launch".
 - The labels should be clean, small text below each icon.
 
 👨‍💻 Developer Element:
