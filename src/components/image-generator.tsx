@@ -119,6 +119,7 @@ const formSchema = z.object({
       break;
     case 'isometric-cityscape':
       if (!data.companyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A company name is required for this style.", path: ["companyName"] });
+      if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
       break;
   }
 });
@@ -379,6 +380,7 @@ export function ImageGenerator() {
         const result = await generateIsometricCityscapeImage({
           postIdea: values.postIdea,
           companyName: values.companyName!,
+          niche: values.niche!,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -508,6 +510,7 @@ export function ImageGenerator() {
                           form.setValue('launchIcon', 'A rocket icon');
                         } else if (value === 'isometric-cityscape') {
                           form.setValue('companyName', 'TEKNOVISTA');
+                          form.setValue('niche', 'Web Development');
                         }
                       }}
                       value={field.value}
@@ -1536,6 +1539,29 @@ export function ImageGenerator() {
 
               {selectedStyle === 'isometric-cityscape' && (
                 <>
+                  <FormField
+                    control={form.control}
+                    name="niche"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Niche</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a niche" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Web Development">Web Development</SelectItem>
+                            <SelectItem value="Lead Generation">Lead Generation</SelectItem>
+                            <SelectItem value="AI Solutions">AI Solutions</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Tailor the cityscape to a specific industry focus.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="companyName"
