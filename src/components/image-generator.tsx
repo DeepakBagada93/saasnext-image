@@ -31,7 +31,6 @@ import { generateNextGenArenaImage } from '@/ai/flows/generate-next-gen-arena-im
 import { generateMultiSlideCarouselImage } from '@/ai/flows/generate-multi-slide-carousel-image';
 import { generateJoyfulGridImage } from '@/ai/flows/generate-joyful-grid-image';
 import { generateModularWorkflowImage } from '@/ai/flows/generate-modular-workflow-image';
-import { generateIsometricCityscapeImage } from '@/ai/flows/generate-isometric-cityscape-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -116,10 +115,6 @@ const formSchema = z.object({
       if (!data.strategyIcon) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A strategy icon is required.", path: ["strategyIcon"] });
       if (!data.ideationIcon) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An ideation icon is required.", path: ["ideationIcon"] });
       if (!data.launchIcon) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A launch icon is required.", path: ["launchIcon"] });
-      break;
-    case 'isometric-cityscape':
-      if (!data.companyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A company name is required for this style.", path: ["companyName"] });
-      if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
       break;
   }
 });
@@ -376,17 +371,6 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
-      } else if (values.style === 'isometric-cityscape') {
-        const result = await generateIsometricCityscapeImage({
-          postIdea: values.postIdea,
-          companyName: values.companyName!,
-          niche: values.niche!,
-        });
-        if (result.image) {
-          setGeneratedImage(result.image);
-        } else {
-          throw new Error("The AI did not return an image.");
-        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -508,9 +492,6 @@ export function ImageGenerator() {
                           form.setValue('strategyIcon', 'A gear icon');
                           form.setValue('ideationIcon', 'A lightbulb icon');
                           form.setValue('launchIcon', 'A rocket icon');
-                        } else if (value === 'isometric-cityscape') {
-                          form.setValue('companyName', 'TEKNOVISTA');
-                          form.setValue('niche', 'Web Development');
                         }
                       }}
                       value={field.value}
@@ -536,7 +517,6 @@ export function ImageGenerator() {
                         <SelectItem value="multi-slide-carousel">Multi-slide Carousel</SelectItem>
                         <SelectItem value="joyful-grid">Joyful Grid</SelectItem>
                         <SelectItem value="modular-workflow">Modular Developer Workflow</SelectItem>
-                        <SelectItem value="isometric-cityscape">Isometric Futuristic Cityscape</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1536,53 +1516,6 @@ export function ImageGenerator() {
                   />
                 </>
               )}
-
-              {selectedStyle === 'isometric-cityscape' && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="niche"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Niche</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select a niche" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Web Development">Web Development</SelectItem>
-                            <SelectItem value="Lead Generation">Lead Generation</SelectItem>
-                            <SelectItem value="AI Solutions">AI Solutions</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormDescription>Tailor the cityscape to a specific industry focus.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="companyName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="e.g., TEKNOVISTA"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription>The name to display as a landmark in the city.</FormDescription>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-
-
             </CardContent>
             <CardFooter>
               <Button type="submit" className="w-full font-bold" disabled={isLoading}>
