@@ -62,6 +62,7 @@ const formSchema = z.object({
   ideationIcon: z.string().optional(),
   launchIcon: z.string().optional(),
   designerName: z.string().optional(),
+  deviceType: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -121,6 +122,8 @@ const formSchema = z.object({
     case 'hyper-realistic':
       if (!data.companyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A company name is required.", path: ["companyName"] });
       if (!data.designerName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A designer name is required.", path: ["designerName"] });
+      if (!data.niche) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A niche is required for this style.", path: ["niche"] });
+      if (!data.deviceType) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A device type is required for this style.", path: ["deviceType"] });
       break;
   }
 });
@@ -162,6 +165,7 @@ export function ImageGenerator() {
       ideationIcon: undefined,
       launchIcon: undefined,
       designerName: "",
+      deviceType: undefined,
     }
   });
 
@@ -193,6 +197,7 @@ export function ImageGenerator() {
     form.setValue('ideationIcon', undefined, { shouldValidate: true });
     form.setValue('launchIcon', undefined, { shouldValidate: true });
     form.setValue('designerName', '', { shouldValidate: true });
+    form.setValue('deviceType', undefined, { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -384,6 +389,8 @@ export function ImageGenerator() {
           postIdea: values.postIdea,
           companyName: values.companyName!,
           designerName: values.designerName!,
+          niche: values.niche!,
+          deviceType: values.deviceType!,
         });
         if (result.image) {
           setGeneratedImage(result.image);
@@ -514,6 +521,8 @@ export function ImageGenerator() {
                         } else if (value === 'hyper-realistic') {
                           form.setValue('companyName', 'SAASNEXT');
                           form.setValue('designerName', 'Deepak Bagada');
+                          form.setValue('niche', 'Web Development');
+                          form.setValue('deviceType', 'Smartphone');
                         }
                       }}
                       value={field.value}
@@ -1542,6 +1551,52 @@ export function ImageGenerator() {
 
               {selectedStyle === 'hyper-realistic' && (
                 <>
+                   <FormField
+                    control={form.control}
+                    name="niche"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Niche</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a niche" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Web Development">Web Development</SelectItem>
+                            <SelectItem value="Lead Generation">Lead Generation</SelectItem>
+                            <SelectItem value="AI Solutions">AI Solutions</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Select the industry focus for the visual.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="deviceType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Device Type</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a device" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Smartphone">Smartphone</SelectItem>
+                            <SelectItem value="Laptop">Laptop</SelectItem>
+                            <SelectItem value="Tablet">Tablet</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>Choose the device to feature.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="companyName"
