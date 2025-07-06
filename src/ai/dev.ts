@@ -17,3 +17,4 @@ import '@/ai/flows/generate-next-gen-arena-image.ts';
 import '@/ai/flows/generate-multi-slide-carousel-image.ts';
 import '@/ai/flows/generate-joyful-grid-image.ts';
 import '@/ai/flows/generate-modular-workflow-image.ts';
+import '@/ai/flows/generate-hyper-realistic-image.ts';

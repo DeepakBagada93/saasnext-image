@@ -31,6 +31,7 @@ import { generateNextGenArenaImage } from '@/ai/flows/generate-next-gen-arena-im
 import { generateMultiSlideCarouselImage } from '@/ai/flows/generate-multi-slide-carousel-image';
 import { generateJoyfulGridImage } from '@/ai/flows/generate-joyful-grid-image';
 import { generateModularWorkflowImage } from '@/ai/flows/generate-modular-workflow-image';
+import { generateHyperRealisticImage } from '@/ai/flows/generate-hyper-realistic-image';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
@@ -60,6 +61,7 @@ const formSchema = z.object({
   strategyIcon: z.string().optional(),
   ideationIcon: z.string().optional(),
   launchIcon: z.string().optional(),
+  designerName: z.string().optional(),
 }).superRefine((data, ctx) => {
   switch (data.style) {
     case 'bold-minimalist':
@@ -116,6 +118,10 @@ const formSchema = z.object({
       if (!data.ideationIcon) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "An ideation icon is required.", path: ["ideationIcon"] });
       if (!data.launchIcon) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A launch icon is required.", path: ["launchIcon"] });
       break;
+    case 'hyper-realistic':
+      if (!data.companyName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A company name is required.", path: ["companyName"] });
+      if (!data.designerName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: "A designer name is required.", path: ["designerName"] });
+      break;
   }
 });
 
@@ -155,6 +161,7 @@ export function ImageGenerator() {
       strategyIcon: undefined,
       ideationIcon: undefined,
       launchIcon: undefined,
+      designerName: "",
     }
   });
 
@@ -185,6 +192,7 @@ export function ImageGenerator() {
     form.setValue('strategyIcon', undefined, { shouldValidate: true });
     form.setValue('ideationIcon', undefined, { shouldValidate: true });
     form.setValue('launchIcon', undefined, { shouldValidate: true });
+    form.setValue('designerName', '', { shouldValidate: true });
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -371,6 +379,17 @@ export function ImageGenerator() {
         } else {
           throw new Error("The AI did not return an image.");
         }
+      } else if (values.style === 'hyper-realistic') {
+        const result = await generateHyperRealisticImage({
+          postIdea: values.postIdea,
+          companyName: values.companyName!,
+          designerName: values.designerName!,
+        });
+        if (result.image) {
+          setGeneratedImage(result.image);
+        } else {
+          throw new Error("The AI did not return an image.");
+        }
       } else {
         const errorMessage = "Selected style is not supported yet.";
         setError(errorMessage);
@@ -492,6 +511,9 @@ export function ImageGenerator() {
                           form.setValue('strategyIcon', 'A gear icon');
                           form.setValue('ideationIcon', 'A lightbulb icon');
                           form.setValue('launchIcon', 'A rocket icon');
+                        } else if (value === 'hyper-realistic') {
+                          form.setValue('companyName', 'SAASNEXT');
+                          form.setValue('designerName', 'Deepak Bagada');
                         }
                       }}
                       value={field.value}
@@ -517,6 +539,7 @@ export function ImageGenerator() {
                         <SelectItem value="multi-slide-carousel">Multi-slide Carousel</SelectItem>
                         <SelectItem value="joyful-grid">Joyful Grid</SelectItem>
                         <SelectItem value="modular-workflow">Modular Developer Workflow</SelectItem>
+                        <SelectItem value="hyper-realistic">Hyper-Realistic</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -1510,6 +1533,45 @@ export function ImageGenerator() {
                           </SelectContent>
                         </Select>
                         <FormDescription>Icon for the third step.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {selectedStyle === 'hyper-realistic' && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="companyName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., SAASNEXT"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>The brand to feature in the image.</FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="designerName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Designer Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g., Deepak Bagada"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormDescription>The signature to display.</FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
